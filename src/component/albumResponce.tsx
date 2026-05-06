@@ -103,15 +103,7 @@ const AlbumCard = ({ album }: { album: Album }) => {
 };
 
 //album response
-const AlbumResponse = ({ album, isLoading }: { album: Album | null; isLoading: boolean }) => {
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4 md:gap-8 p-4 md:p-8 border border-black rounded-xl">
-        <p className="text-lg font-bold">loading...</p>
-      </div>
-    );
-  }
-
+const AlbumResponse = ({ album }: { album: Album | null }) => {
   if (!album) {
     return null;
   }

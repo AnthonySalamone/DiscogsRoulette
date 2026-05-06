@@ -1,16 +1,11 @@
 //  Since the discogs API doesn't provide an Endpoint for the styles, we extract them all for a big release list (here 2000)
-//  then we copy it in a table:
-//  const styleOptions = [
-//    { value: 'AOR', label: 'AOR' },
-//    { value: 'Abstract', label: 'Abstract' },
-//    ...
-//  ];
 
 const getAllStyles = async () => {
-  const allStyles: string[] = [];
-
   try {
-      const response = await fetch(`https://api.discogs.com/database/search?type=release&per_page=100&page=20`, {
+    const allStyles = [];
+    // pages 1-20 with 100 releases per page
+    for (let page = 1; page <= 20; page++) {
+      const response = await fetch(`https://api.discogs.com/database/search?type=release&per_page=100&page=${page}`, {
         headers: {
           'User-Agent': 'DiscoRoulette/1.0'
         }
@@ -23,20 +18,25 @@ const getAllStyles = async () => {
       }
 
       const data = await response.json();
+      allStyles.push(...data.results);
+    }
 
-      data.results.forEach((release: { style?: string[] }) => {
-        if (release.style && Array.isArray(release.style)) {
-          allStyles.push(...release.style);
-        }
-      });
+    // Reduce
+    const uniqueStyles = allStyles.reduce((acc, release) => {
+      if (release.style && Array.isArray(release.style)) {
+        release.style.forEach(style => {
+          if (acc.indexOf(style) === -1) {
+            acc.push(style);
+          }
+        });
+      }
+      return acc;
+    }, []).sort();
 
-    const uniqueStyles = [...new Set(allStyles)].sort();
-    console.log('All styles found:', uniqueStyles);
     console.log(`Total: ${uniqueStyles.length} unique styles on 20 pages`);
 
     return uniqueStyles;
-  } catch (error) {
-    console.error('Error:', error);
+  } catch {
     return [];
   }
 };

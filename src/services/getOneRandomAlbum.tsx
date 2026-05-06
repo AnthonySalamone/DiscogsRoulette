@@ -34,10 +34,13 @@ const getOneRandomAlbum = async (
 
       return album as Album;
     } else {
+      alert('No album found');
+      new Error('No album found');
       return null;
     }
   } catch {
     alert('Error');
+    new Error('Error');
     return null;
   }
 };

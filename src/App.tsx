@@ -30,7 +30,7 @@ function App() {
           setIsLoading={setIsLoading}
         />
         {(isLoading || album) && (
-          <AlbumResponse album={album} isLoading={isLoading} />
+          <AlbumResponse album={album} />
         )}
       </main>
       <footer className="bg-black text-white py-10">
