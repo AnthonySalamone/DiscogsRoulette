@@ -1,13 +1,6 @@
-interface DiscogRelease {
-  genre?: string[];
-  style?: string[];
-}
+import type { DiscogRelease, DiscogResponse, GenresAndStylesResult } from "../types/discogAPI";
 
-interface DiscogResponse {
-  results: DiscogRelease[];
-}
-
-const fetchGenresAndStyles = async () => {
+const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
   try {
     const allReleases: DiscogRelease[] = [];
 
