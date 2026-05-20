@@ -1,8 +1,9 @@
 //  Since the discogs API doesn't provide an Endpoint for the styles, we extract them all for a big release list (here 2000)
-
+//TODO: 1 file for all genres and styles
 const getAllStyles = async () => {
   try {
     const allStyles = [];
+
     // pages 1-20 with 100 releases per page
     for (let page = 1; page <= 20; page++) {
       const response = await fetch(`https://api.discogs.com/database/search?type=release&per_page=100&page=${page}`, {
@@ -36,7 +37,8 @@ const getAllStyles = async () => {
     console.log(`Total: ${uniqueStyles.length} unique styles on 20 pages`);
 
     return uniqueStyles;
-  } catch {
+  } catch (error) {
+    console.error('Error:', error);
     return [];
   }
 };

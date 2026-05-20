@@ -1,5 +1,5 @@
 //  Since the discogs API doesn't provide an Endpoint for the genders, we extract them all for a big release list (here 500)
-
+//TODO: 1 file for all genres and styles
 const getAllGenres = async () => {
   try {
     const allReleases = [];

@@ -14,7 +14,7 @@ function App() {
     <>
       <header className="bg-black text-white py-10 mb-10">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold">Discoroulette 🪩</h1>
+          <h1 className="text-2xl font-bold">Discogs Roulette 🪩</h1>
         </div>
       </header>
       <main className="mb-10 max-w-3xl mx-auto">

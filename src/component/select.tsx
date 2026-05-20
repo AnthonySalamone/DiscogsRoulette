@@ -5,6 +5,7 @@ for (let year = 2026; year >= 1950; year--) {
   yearOptions.push({ value: year.toString(), label: year.toString() });
 }
 
+//automate this list with a hook
 const genreOptions = [
   { value: 'rock', label: 'Rock' },
   { value: 'electronic', label: 'Electronic' },

@@ -111,7 +111,6 @@ const AlbumResponse = ({ album }: { album: Album | null }) => {
   return (
     <div className="flex flex-col gap-4 md:gap-8 p-4 md:p-8 border border-black rounded-xl">
       <AlbumCard album={album} />
-      {/* filter if available on youtube */}
       {album.videos && album.videos[0] && (
         <VideoPlayer videoUrl={album.videos[0].uri} />
       )}
