@@ -4,6 +4,22 @@ const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
   try {
     const allReleases: DiscogRelease[] = [];
 
+    //check si il y a next plutot que de boucler
+
+    // "pagination": {
+    //   "page": 3,
+    //   "pages": 100,
+    //   "per_page": 100,
+    //   "items": 19270728,
+    //   "urls": {
+    //     "first": "https://api.discogs.com/database/search?type=release&per_page=100&page=1",
+    //     "last": "https://api.discogs.com/database/search?type=release&per_page=100&page=100",
+    //     "prev": "https://api.discogs.com/database/search?type=release&per_page=100&page=2",
+    //     "next": "https://api.discogs.com/database/search?type=release&per_page=100&page=4"
+    //   }
+    // },
+
+    //codesandbox.io/embed/github/eggheadio-projects/algorithms-in-javascript/tree/master/01-refactor-a-loop-in-javascript-to-use-recursion?expanddevtools=1&module=%2Fsrc%2Findex.js
     for (let page = 1; page <= 20; page++) {
       const response = await fetch(`https://api.discogs.com/database/search?type=release&per_page=100&page=${page}`, {
         headers: {

@@ -5,7 +5,7 @@ for (let year = 2026; year >= 1950; year--) {
   yearOptions.push({ value: year.toString(), label: year.toString() });
 }
 
-//automate this list with a hook
+//automate this list with a hook (Zustand-like)
 const genreOptions = [
   { value: 'rock', label: 'Rock' },
   { value: 'electronic', label: 'Electronic' },
@@ -20,7 +20,7 @@ const genreOptions = [
   { value: 'blues', label: 'Blues' },
 ];
 
-//automate this list with a hook
+//automate this list with a hook (Zustand-like)
 const styleOptions = [
   { value: 'AOR', label: 'AOR' },
   { value: 'Abstract', label: 'Abstract' },

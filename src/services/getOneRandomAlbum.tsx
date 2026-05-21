@@ -9,7 +9,7 @@ const getOneRandomAlbum = async (
     const sortOptions = ['year,desc', 'year,asc', 'title,asc', 'title,desc', 'format', 'rating,desc', 'rating,asc', 'added,desc', 'added,asc'];
     const randomSort = sortOptions[Math.floor(Math.random() * sortOptions.length)];
 
-    const params = new URLSearchParams({ type: 'release', per_page: '25', sort: randomSort });
+    const params = new URLSearchParams({ type: 'release', per_page: '100', sort: randomSort });
     if (genre) params.append('genre', genre);
     if (style) params.append('style', style);
     if (year) params.append('year', year);
