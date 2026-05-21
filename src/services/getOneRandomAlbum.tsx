@@ -6,13 +6,16 @@ const getOneRandomAlbum = async (
   style: string
 ) => {
   try {
-    // voir si on peut jouer avec le parametre sort() pour changer l'ordre des labums rendus et pas toujours taper dans les premiers
-    const params = new URLSearchParams({ type: 'release', per_page: '50' });
+    const sortOptions = ['year,desc', 'year,asc', 'title,asc', 'title,desc', 'format', 'rating,desc', 'rating,asc', 'added,desc', 'added,asc'];
+    const randomSort = sortOptions[Math.floor(Math.random() * sortOptions.length)];
+
+    const params = new URLSearchParams({ type: 'release', per_page: '25', sort: randomSort });
     if (genre) params.append('genre', genre);
     if (style) params.append('style', style);
     if (year) params.append('year', year);
 
-    const response = await fetch(`https://api.discogs.com/database/search?${params}`, {
+    const fullUrl = `https://api.discogs.com/database/search?${params}`;
+    const response = await fetch(fullUrl, {
       headers: { 'User-Agent': 'DiscoRoulette/1.0' }
     });
 
@@ -21,7 +24,6 @@ const getOneRandomAlbum = async (
     if (data.results?.length > 0) {
       const album = data.results[Math.floor(Math.random() * data.results.length)];
 
-      // Récupérer les détails complets avec les images
       const releaseInfo = await fetch(album.resource_url, {
         headers: { 'User-Agent': 'DiscoRoulette/1.0' }
       });
@@ -39,8 +41,8 @@ const getOneRandomAlbum = async (
       return null;
     }
   } catch {
-    alert('Error');
-    new Error('Error');
+    alert('Error, too many requests, max is 60 requests per minute');
+    new Error('Error, too many requests, max is 60 requests per minute');
     return null;
   }
 };

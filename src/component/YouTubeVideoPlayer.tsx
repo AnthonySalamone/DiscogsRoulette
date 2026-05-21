@@ -7,18 +7,6 @@ const getYouTubeId = (url: string) => {
 const YouTubeVideoPlayer = ({ videoUrl }: YouTubeVideoPlayerProps) => {
   const videoId = getYouTubeId(videoUrl);
 
-  if (!videoId) {
-    return (
-      <a
-        href={videoUrl}
-        target="_blank"
-        className="text-blue-500 hover:underline"
-      >
-        Watch the video on youtube
-      </a>
-    );
-  }
-
   return (
     <iframe
       width="100%"
