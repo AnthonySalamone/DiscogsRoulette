@@ -1,7 +1,18 @@
 import type { DiscogRelease, DiscogResponse, GenresAndStylesResult } from "../types/discogAPI";
 import { discogsFetch } from "./discogsApi";
 
-const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
+let inFlight: Promise<GenresAndStylesResult> | null = null;
+
+const fetchGenresAndStyles = (): Promise<GenresAndStylesResult> => {
+  if (!inFlight) {
+    inFlight = loadGenresAndStyles().finally(() => {
+      inFlight = null;
+    });
+  }
+  return inFlight;
+};
+
+const loadGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
   try {
     const allReleases: DiscogRelease[] = [];
 
@@ -23,14 +34,14 @@ const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
     // car on pioche dans toutes les releases de discogs.
     // On est donc sur qu'il y aura toujours les 20 pages disponibles.
 
-    for (let page = 1; page <= 2; page++) {
+    for (let page = 1; page <= 20; page++) {
       const response = await discogsFetch(
         `/database/search?type=release&per_page=100&page=${page}`
       );
 
       if (!response.ok) {
         console.error('API error:', response.status);
-        alert('Error calling API');
+        // alert('Error calling API, to many reload, please wait a minute');
         return { genres: [], styles: [] };
       }
 

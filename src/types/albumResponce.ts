@@ -6,6 +6,7 @@ export type Album = {
     name: string;
   }[];
   year: string | number;
+  country: string;
   genres: string[];
   styles: string[];
   images: {

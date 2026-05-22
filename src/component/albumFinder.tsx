@@ -16,34 +16,50 @@ const AlbumFinder = ({
   setYear,
   setStyle,
   setAlbum,
+  setAlbumError,
   setIsLoading,
 }: AlbumFinderProps) => {
   return (
-    <div className="mb-10">
-      <h2 className="text-lg font-bold">Select a Year</h2>
-      <SelectComponent
-        options={yearOptions}
-        instanceId="year-select"
-        onChange={(option) => setYear(option?.value ?? "")}
-      />
-      <h2 className="text-lg font-bold">Select a Genre</h2>
-      <SelectComponent
-        options={genreOptions}
-        instanceId="genre-select"
-        onChange={(option) => setGenre(option?.value ?? "")}
-      />
-      <h2 className="text-lg font-bold">Select a Style</h2>
-      <SelectComponent
-        options={styleOptions}
-        instanceId="style-select"
-        onChange={(option) => setStyle(option?.value ?? "")}
-      />
+    <div className="mb-10 flex flex-col gap-4">
+      <div>
+        <h2 className="text-lg font-bold">Select a Year</h2>
+        <SelectComponent
+          options={yearOptions}
+          instanceId="year-select"
+          onChange={(option) => setYear(option?.value ?? "")}
+        />
+      </div>
+      <div>
+        <h2 className="text-lg font-bold">Select a Genre</h2>
+        <SelectComponent
+          options={genreOptions}
+          instanceId="genre-select"
+          onChange={(option) => setGenre(option?.value ?? "")}
+        />
+      </div>
+      <div>
+        <h2 className="text-lg font-bold">Select a Style</h2>
+        <SelectComponent
+          options={styleOptions}
+          instanceId="style-select"
+          onChange={(option) => setStyle(option?.value ?? "")}
+        />
+      </div>
       <button
         onClick={async () => {
           try {
             setIsLoading(true);
+            setAlbumError(null);
             const result = await getOneRandomAlbum(genre, year, style);
-            setAlbum(result);
+            if (!result) {
+              setAlbum(null);
+              setAlbumError(
+                "Too many requests. Wait a minute and try again."
+              );
+            } else {
+              setAlbum(result);
+              setAlbumError(null);
+            }
           } finally {
             setIsLoading(false);
           }

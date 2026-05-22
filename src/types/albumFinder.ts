@@ -13,6 +13,7 @@ type AlbumFinderProps = {
     setYear: Dispatch<SetStateAction<string>>;
     setStyle: Dispatch<SetStateAction<string>>;
     setAlbum: Dispatch<SetStateAction<Album | null>>;
+    setAlbumError: Dispatch<SetStateAction<string | null>>;
     setIsLoading: Dispatch<SetStateAction<boolean>>;
   };
 export type { AlbumFinderProps as default };

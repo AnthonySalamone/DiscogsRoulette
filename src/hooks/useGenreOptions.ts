@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { fetchGenresAndStyles } from "../services/getGenresAndStyles";
 import type { SelectOption } from "../types/select";
 
-const useGenreOptions = (): SelectOption[] => {
+const useGenreOptions = () => {
   const [genreOptions, setGenreOptions] = useState<SelectOption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchGenresAndStyles().then((result) => {
@@ -13,10 +14,11 @@ const useGenreOptions = (): SelectOption[] => {
           label: genre,
         }))
       );
+      setIsLoading(false);
     });
   }, []);
 
-  return genreOptions;
+  return { genreOptions, isLoading };
 };
 
 export { useGenreOptions };

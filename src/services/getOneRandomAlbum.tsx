@@ -33,13 +33,11 @@ const getOneRandomAlbum = async (
 
       return album as Album;
     } else {
-      alert('No album found');
-      new Error('No album found');
+      console.error('No album found');
       return null;
     }
   } catch {
-    alert('Error, too many requests, max is 60 requests per minute');
-    new Error('Error, too many requests, max is 60 requests per minute');
+    console.error('Error, too many requests, max is 60 requests per minute');
     return null;
   }
 };
