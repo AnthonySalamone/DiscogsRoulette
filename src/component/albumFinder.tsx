@@ -1,6 +1,6 @@
 'use client';
 
-import { yearOptions, styleOptions, genreOptions } from "./select";
+import { yearOptions, styleOptions } from "./select";
 import { SelectComponent } from "./selectComponent";
 import { getOneRandomAlbum } from "../services/getOneRandomAlbum";
 import type AlbumFinderProps from "../types/albumFinder";
@@ -9,6 +9,7 @@ const AlbumFinder = ({
   genre,
   year,
   style,
+  genreOptions,
   isLoading,
   setGenre,
   setYear,

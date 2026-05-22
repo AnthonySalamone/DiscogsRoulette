@@ -6,21 +6,6 @@ for (let year = 2026; year >= 1950; year--) {
 }
 
 //automate this list with a hook (Zustand-like)
-const genreOptions = [
-  { value: 'rock', label: 'Rock' },
-  { value: 'electronic', label: 'Electronic' },
-  { value: 'pop', label: 'Pop' },
-  { value: 'funk-soul', label: 'Funk / Soul' },
-  { value: 'folk-world-country', label: 'Folk / World / Country' },
-  { value: 'jazz', label: 'Jazz' },
-  { value: 'classical', label: 'Classical' },
-  { value: 'hip-hop', label: 'Hip-Hop' },
-  { value: 'reggae', label: 'Reggae' },
-  { value: 'latin', label: 'Latin' },
-  { value: 'blues', label: 'Blues' },
-];
-
-//automate this list with a hook (Zustand-like)
 const styleOptions = [
   { value: 'AOR', label: 'AOR' },
   { value: 'Abstract', label: 'Abstract' },
@@ -334,4 +319,4 @@ const styleOptions = [
   { value: 'Éntekhno', label: 'Éntekhno' },
 ];
 
-export { yearOptions, genreOptions, styleOptions };
+export { yearOptions, styleOptions };

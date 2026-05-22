@@ -1,10 +1,11 @@
 import { useState } from "react";
 import AlbumResponse from "./component/albumResponce";
 import AlbumFinder from "./component/albumFinder";
-import { fetchGenresAndStyles } from "./services/getGenresAndStyles";
+import { useGenreOptions } from "./hooks/useGenreOptions";
 import type { Album } from "./types/albumResponce";
 
 function App() {
+  const genreOptions = useGenreOptions();
   const [genre, setGenre] = useState<string>("");
   const [year, setYear] = useState<string>("");
   const [style, setStyle] = useState<string>("");
@@ -23,6 +24,7 @@ function App() {
           genre={genre}
           year={year}
           style={style}
+          genreOptions={genreOptions}
           isLoading={isLoading}
           setGenre={setGenre}
           setYear={setYear}
@@ -34,20 +36,6 @@ function App() {
           <AlbumResponse album={album} />
         )}
       </main>
-
-      <div className="max-w-3xl mx-auto mb-10">
-        <button
-          onClick={async () => {
-            console.log('styles and genres loading...');
-            const result = await fetchGenresAndStyles();
-            console.log('Genres:', result.genres);
-            console.log('Styles:', result.styles);
-          }}
-          className="bg-black text-white px-4 py-2 cursor-pointer hover:bg-black/80 mt-10 rounded-xl transition-all duration-300 min-w-48 mx-auto block text-center"
-        >
-          Test genres and styles in console
-        </button>
-      </div>
 
       <footer className="bg-black text-white py-10">
         <div className="max-w-3xl mx-auto">
