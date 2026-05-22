@@ -5,7 +5,6 @@ const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
     const allReleases: DiscogRelease[] = [];
 
     //check si il y a next plutot que de boucler
-
     // "pagination": {
     //   "page": 3,
     //   "pages": 100,
@@ -19,7 +18,10 @@ const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
     //   }
     // },
 
-    //codesandbox.io/embed/github/eggheadio-projects/algorithms-in-javascript/tree/master/01-refactor-a-loop-in-javascript-to-use-recursion?expanddevtools=1&module=%2Fsrc%2Findex.js
+    // @YannG, ici après réflexion, le fait de boucler ne pose pas de problème
+    // car on pioche dans toutes les releases de discogs.
+    // On est donc sur qu'il y aura toujours les 20 pages disponibles.
+
     for (let page = 1; page <= 20; page++) {
       const response = await fetch(`https://api.discogs.com/database/search?type=release&per_page=100&page=${page}`, {
         headers: {
