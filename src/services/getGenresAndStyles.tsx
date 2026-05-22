@@ -1,4 +1,5 @@
 import type { DiscogRelease, DiscogResponse, GenresAndStylesResult } from "../types/discogAPI";
+import { discogsFetch } from "./discogsApi";
 
 const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
   try {
@@ -22,12 +23,10 @@ const fetchGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
     // car on pioche dans toutes les releases de discogs.
     // On est donc sur qu'il y aura toujours les 20 pages disponibles.
 
-    for (let page = 1; page <= 20; page++) {
-      const response = await fetch(`https://api.discogs.com/database/search?type=release&per_page=100&page=${page}`, {
-        headers: {
-          'User-Agent': 'DiscoRoulette/1.0'
-        }
-      });
+    for (let page = 1; page <= 2; page++) {
+      const response = await discogsFetch(
+        `/database/search?type=release&per_page=100&page=${page}`
+      );
 
       if (!response.ok) {
         console.error('API error:', response.status);

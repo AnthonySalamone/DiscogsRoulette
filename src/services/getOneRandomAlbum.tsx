@@ -1,4 +1,5 @@
 import type { Album } from "../types/albumResponce";
+import { discogsFetch } from "./discogsApi";
 
 const getOneRandomAlbum = async (
   genre: string,
@@ -14,19 +15,15 @@ const getOneRandomAlbum = async (
     if (style) params.append('style', style);
     if (year) params.append('year', year);
 
-    const fullUrl = `https://api.discogs.com/database/search?${params}`;
-    const response = await fetch(fullUrl, {
-      headers: { 'User-Agent': 'DiscoRoulette/1.0' }
-    });
+    const response = await discogsFetch(`/database/search?${params}`);
 
     const data = await response.json();
 
     if (data.results?.length > 0) {
       const album = data.results[Math.floor(Math.random() * data.results.length)];
 
-      const releaseInfo = await fetch(album.resource_url, {
-        headers: { 'User-Agent': 'DiscoRoulette/1.0' }
-      });
+      const releasePath = new URL(album.resource_url).pathname;
+      const releaseInfo = await discogsFetch(releasePath);
 
       if (releaseInfo.ok) {
         const fullAlbum = await releaseInfo.json();
