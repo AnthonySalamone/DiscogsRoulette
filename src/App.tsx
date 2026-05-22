@@ -2,10 +2,12 @@ import { useState } from "react";
 import AlbumResponse from "./component/albumResponce";
 import AlbumFinder from "./component/albumFinder";
 import { useGenreOptions } from "./hooks/useGenreOptions";
+import { useStylesOptions } from "./hooks/useStylesOptions";
 import type { Album } from "./types/albumResponce";
 
 function App() {
   const genreOptions = useGenreOptions();
+  const styleOptions = useStylesOptions();
   const [genre, setGenre] = useState<string>("");
   const [year, setYear] = useState<string>("");
   const [style, setStyle] = useState<string>("");
@@ -25,6 +27,7 @@ function App() {
           year={year}
           style={style}
           genreOptions={genreOptions}
+          styleOptions={styleOptions}
           isLoading={isLoading}
           setGenre={setGenre}
           setYear={setYear}

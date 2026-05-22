@@ -7,6 +7,7 @@ type AlbumFinderProps = {
     year: string;
     style: string;
     genreOptions: SelectOption[];
+    styleOptions: SelectOption[];
     isLoading: boolean;
     setGenre: Dispatch<SetStateAction<string>>;
     setYear: Dispatch<SetStateAction<string>>;
