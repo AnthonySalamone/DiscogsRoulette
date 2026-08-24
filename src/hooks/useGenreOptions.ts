@@ -1,24 +1,16 @@
-import { useEffect, useState } from "react";
-import { fetchGenresAndStyles } from "../services/getGenresAndStyles";
+import { useMemo } from "react";
+import { allGenres } from "../data/genreStyleMap";
 import type { SelectOption } from "../types/select";
 
+// Donnée statique (voir src/data/genreStyleMap.ts) : plus besoin d'async/loading,
+// mais on garde la même forme de retour pour ne pas toucher App.tsx.
 const useGenreOptions = () => {
-  const [genreOptions, setGenreOptions] = useState<SelectOption[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const genreOptions = useMemo<SelectOption[]>(
+    () => allGenres.map((genre) => ({ value: genre, label: genre })),
+    []
+  );
 
-  useEffect(() => {
-    fetchGenresAndStyles().then((result) => {
-      setGenreOptions(
-        result.genres.map((genre) => ({
-          value: genre,
-          label: genre,
-        }))
-      );
-      setIsLoading(false);
-    });
-  }, []);
-
-  return { genreOptions, isLoading };
+  return { genreOptions, isLoading: false };
 };
 
 export { useGenreOptions };

@@ -40,6 +40,7 @@ const AlbumFinder = ({
       <div>
         <h2 className="text-lg font-bold">Select a Style</h2>
         <SelectComponent
+          key={genre}
           options={styleOptions}
           instanceId="style-select"
           onChange={(option) => setStyle(option?.value ?? "")}
