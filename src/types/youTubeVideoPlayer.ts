@@ -1,5 +1,5 @@
 type YouTubeVideoPlayerProps = {
-  videoUrl: string | undefined;
+  videoId: string;
 };
 
 export type { YouTubeVideoPlayerProps };

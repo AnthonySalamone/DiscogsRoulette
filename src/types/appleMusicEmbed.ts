@@ -1,6 +1,5 @@
 type AppleMusicEmbedProps = {
-  albumTitle: string;
-  artistName: string;
+  embedUrl: string;
 };
 
 export type { AppleMusicEmbedProps };

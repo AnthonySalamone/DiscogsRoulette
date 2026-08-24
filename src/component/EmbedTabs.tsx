@@ -1,34 +1,73 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { Album } from "../types/albumResponce";
 import YouTubeVideoPlayer from "./YouTubeVideoPlayer";
 import AppleMusicEmbed from "./AppleMusicEmbed";
-import SpotifyEmbed from "./SpotifyEmbed";
-import SoundCloudLink from "./SoundCloudLink";
+import ExternalSearchLink from "./ExternalSearchLink";
+import { useAppleMusicEmbedUrl } from "../hooks/useAppleMusicEmbedUrl";
+import { getYouTubeVideoId } from "../utils/youtube";
 
 type TabId = "youtube" | "apple" | "spotify" | "soundcloud";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "youtube", label: "YouTube" },
-  { id: "apple", label: "Apple Music" },
-  { id: "spotify", label: "Spotify" },
-  { id: "soundcloud", label: "SoundCloud" },
-];
-
 const EmbedTabs = ({ album }: { album: Album }) => {
-  const [activeTab, setActiveTab] = useState<TabId>("youtube");
   const artistName = album.artists?.[0]?.name ?? "";
+  const searchQuery = [artistName, album.title].filter(Boolean).join(" ");
+
+  const youTubeVideoId = getYouTubeVideoId(album.videos?.[0]?.uri);
+  const appleEmbedUrl = useAppleMusicEmbedUrl(album.title, artistName);
+
+  // seuls YouTube et Apple Music dépendent d'un contenu trouvé ou non ; Spotify et
+  // SoundCloud sont de simples liens de recherche, donc toujours affichés
+  const tabs: { id: TabId; label: string; content: ReactNode }[] = [
+    ...(youTubeVideoId
+      ? [{ id: "youtube" as const, label: "YouTube", content: <YouTubeVideoPlayer videoId={youTubeVideoId} /> }]
+      : []),
+    ...(appleEmbedUrl
+      ? [{ id: "apple" as const, label: "Apple Music", content: <AppleMusicEmbed embedUrl={appleEmbedUrl} /> }]
+      : []),
+    {
+      id: "spotify",
+      label: "Spotify",
+      content: (
+        <ExternalSearchLink
+          serviceName="Spotify"
+          searchUrl={`https://open.spotify.com/search/${encodeURIComponent(searchQuery)}`}
+          note="No inline preview here — Spotify's API now requires a Premium developer account."
+        />
+      ),
+    },
+    {
+      id: "soundcloud",
+      label: "SoundCloud",
+      content: (
+        <ExternalSearchLink
+          serviceName="SoundCloud"
+          searchUrl={`https://soundcloud.com/search?q=${encodeURIComponent(searchQuery)}`}
+          note="No inline preview here — SoundCloud's API now requires a paid Artist Pro subscription."
+        />
+      ),
+    },
+  ];
+
+  // l'onglet actif suit l'album affiché : dérivé pendant le render (pas un effect) pour
+  // retomber sur le premier onglet dispo quand l'album change, cf. App.tsx / genre-style
+  const [state, setState] = useState<{ albumId: string; activeTab: TabId }>({
+    albumId: album.id,
+    activeTab: tabs[0].id,
+  });
+  if (state.albumId !== album.id) {
+    setState({ albumId: album.id, activeTab: tabs[0].id });
+  }
+  const activeTab = tabs.find((t) => t.id === state.activeTab) ?? tabs[0];
 
   return (
     <div className="w-full">
       <div className="flex gap-1 mb-4 overflow-x-auto">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => setState({ albumId: album.id, activeTab: tab.id })}
             className={`px-4 py-2 text-sm font-bold rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap ${
-              activeTab === tab.id
-                ? "bg-black text-white"
-                : "bg-black/5 hover:bg-black/10"
+              tab.id === activeTab.id ? "bg-black text-white" : "bg-black/5 hover:bg-black/10"
             }`}
           >
             {tab.label}
@@ -36,16 +75,7 @@ const EmbedTabs = ({ album }: { album: Album }) => {
         ))}
       </div>
 
-      {activeTab === "youtube" && <YouTubeVideoPlayer videoUrl={album.videos?.[0]?.uri} />}
-      {activeTab === "apple" && (
-        <AppleMusicEmbed albumTitle={album.title} artistName={artistName} />
-      )}
-      {activeTab === "spotify" && (
-        <SpotifyEmbed albumTitle={album.title} artistName={artistName} />
-      )}
-      {activeTab === "soundcloud" && (
-        <SoundCloudLink albumTitle={album.title} artistName={artistName} />
-      )}
+      {activeTab.content}
     </div>
   );
 };

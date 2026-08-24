@@ -1,37 +1,6 @@
-import { useEffect, useState } from "react";
-import { getItunesURL } from "../services/getItunesURL";
 import type { AppleMusicEmbedProps } from "../types/appleMusicEmbed";
 
-const AppleMusicEmbed = ({ albumTitle, artistName }: AppleMusicEmbedProps) => {
-  const key = `${albumTitle}::${artistName}`;
-  // { key, url } : le résultat le plus récent et à quelle recherche il correspond —
-  // permet de dériver "en cours" pendant le render sans setState synchrone dans l'effect
-  // (cf. https://react.dev/learn/you-might-not-need-an-effect)
-  const [result, setResult] = useState<{ key: string; url: string | null } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    getItunesURL(albumTitle, artistName).then((url) => {
-      if (!cancelled) setResult({ key, url });
-    });
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [albumTitle, artistName]);
-
-  const isLoading = result?.key !== key;
-
-  if (isLoading) {
-    return <p className="text-sm text-center py-10">Loading…</p>;
-  }
-
-  if (!result?.url) {
-    return <p className="text-sm text-center py-10">No Apple Music preview available.</p>;
-  }
-
+const AppleMusicEmbed = ({ embedUrl }: AppleMusicEmbedProps) => {
   return (
     <div className="w-full overflow-hidden rounded-xl">
       <iframe
@@ -39,7 +8,7 @@ const AppleMusicEmbed = ({ albumTitle, artistName }: AppleMusicEmbedProps) => {
         allow="autoplay *; encrypted-media *;"
         width="100%"
         height={450}
-        src={result.url}
+        src={embedUrl}
         className="w-full border-0"
       />
     </div>
