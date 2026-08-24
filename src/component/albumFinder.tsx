@@ -52,14 +52,21 @@ const AlbumFinder = ({
             setIsLoading(true);
             setAlbumError(null);
             const result = await getOneRandomAlbum(genre, year, style);
-            if (!result) {
+            if (result.status === "ok") {
+              setAlbum(result.album);
+              setAlbumError(null);
+            } else if (result.status === "empty") {
+              const filters = [genre, style].filter(Boolean).join(" ");
+              const yearPart = year ? ` in ${year}` : "";
+              setAlbum(null);
+              setAlbumError(
+                `No ${filters || "matching"} album available${yearPart}. Try a different combination.`
+              );
+            } else {
               setAlbum(null);
               setAlbumError(
                 "Too many requests. Wait a minute and try again."
               );
-            } else {
-              setAlbum(result);
-              setAlbumError(null);
             }
           } finally {
             setIsLoading(false);

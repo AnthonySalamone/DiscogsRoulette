@@ -1,11 +1,11 @@
-import type { Album } from "../types/albumResponce";
+import type { AlbumSearchResult } from "../types/albumResponce";
 import { discogsFetch } from "./discogsApi";
 
 const getOneRandomAlbum = async (
   genre: string,
   year: string,
   style: string
-) => {
+): Promise<AlbumSearchResult> => {
   try {
     const sortOptions = ['year,desc', 'year,asc', 'title,asc', 'title,desc', 'format', 'rating,desc', 'rating,asc', 'added,desc', 'added,asc'];
     const randomSort = sortOptions[Math.floor(Math.random() * sortOptions.length)];
@@ -17,6 +17,13 @@ const getOneRandomAlbum = async (
 
     const response = await discogsFetch(`/database/search?${params}`);
 
+    if (!response.ok) {
+      // vraie erreur (429 rate-limit, 5xx, etc.) : pas la même chose qu'une recherche
+      // qui aboutit à 0 résultat
+      console.error('Discogs search error:', response.status);
+      return { status: "error" };
+    }
+
     const data = await response.json();
 
     if (data.results?.length > 0) {
@@ -27,18 +34,17 @@ const getOneRandomAlbum = async (
 
       if (releaseInfo.ok) {
         const fullAlbum = await releaseInfo.json();
-        console.log(fullAlbum);
-        return fullAlbum;
+        return { status: "ok", album: fullAlbum };
       }
 
-      return album as Album;
-    } else {
-      console.error('No album found');
-      return null;
+      return { status: "ok", album };
     }
-  } catch {
-    console.error('Error, too many requests, max is 60 requests per minute');
-    return null;
+
+    // requête ok, juste aucun résultat pour cette combinaison genre/style/année
+    return { status: "empty" };
+  } catch (error) {
+    console.error('Error fetching a random album:', error);
+    return { status: "error" };
   }
 };
 
