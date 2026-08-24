@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "discogs-dataset-genres-styles": "^1.9.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-select": "^5.10.2"

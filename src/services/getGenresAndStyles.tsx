@@ -1,90 +1,14 @@
-import type { DiscogRelease, DiscogResponse, GenresAndStylesResult } from "../types/discogAPI";
-import { discogsFetch } from "./discogsApi";
+// import direct des sous-chemins JSON (pas l'entrée principale du package, qui utilise
+// node:module/createRequire en interne et ne fonctionne pas dans un bundle navigateur)
+import genres from "discogs-dataset-genres-styles/genres";
+import styles from "discogs-dataset-genres-styles/styles";
+import type { GenresAndStylesResult } from "../types/discogAPI";
 
-let inFlight: Promise<GenresAndStylesResult> | null = null;
-
-const fetchGenresAndStyles = (): Promise<GenresAndStylesResult> => {
-  if (!inFlight) {
-    inFlight = loadGenresAndStyles().finally(() => {
-      inFlight = null;
-    });
-  }
-  return inFlight;
-};
-
-const loadGenresAndStyles = async (): Promise<GenresAndStylesResult> => {
-  try {
-    const allReleases: DiscogRelease[] = [];
-
-    //check si il y a next plutot que de boucler
-    // "pagination": {
-    //   "page": 3,
-    //   "pages": 100,
-    //   "per_page": 100,
-    //   "items": 19270728,
-    //   "urls": {
-    //     "first": "https://api.discogs.com/database/search?type=release&per_page=100&page=1",
-    //     "last": "https://api.discogs.com/database/search?type=release&per_page=100&page=100",
-    //     "prev": "https://api.discogs.com/database/search?type=release&per_page=100&page=2",
-    //     "next": "https://api.discogs.com/database/search?type=release&per_page=100&page=4"
-    //   }
-    // },
-
-    // @YannG, ici après réflexion, le fait de boucler ne pose pas de problème
-    // car on pioche dans toutes les releases de discogs.
-    // On est donc sur qu'il y aura toujours les 20 pages disponibles.
-
-    for (let page = 1; page <= 20; page++) {
-      const response = await discogsFetch(
-        `/database/search?type=release&per_page=100&page=${page}`
-      );
-
-      if (!response.ok) {
-        console.error('API error:', response.status);
-        // alert('Error calling API, to many reload, please wait a minute');
-        return { genres: [], styles: [] };
-      }
-
-      const data: DiscogResponse = await response.json();
-      allReleases.push(...data.results);
-    }
-
-    // Reduce Genres 
-    const uniqueGenres = allReleases.reduce((acc: string[], release) => {
-      if (release.genre && Array.isArray(release.genre)) {
-        release.genre.forEach(genre => {
-          if (acc.indexOf(genre) === -1) {
-            acc.push(genre);
-          }
-        });
-      }
-      return acc;
-    }, []).sort();
-
-    // Reduce Styles
-    const uniqueStyles = allReleases.reduce((acc: string[], release) => {
-      if (release.style && Array.isArray(release.style)) {
-        release.style.forEach(style => {
-          if (acc.indexOf(style) === -1) {
-            acc.push(style);
-          }
-        });
-      }
-      return acc;
-    }, []).sort();
-
-    console.log(`Total: ${uniqueGenres.length} unique genres`);
-    console.log(`Total: ${uniqueStyles.length} unique styles`);
-
-    return {
-      genres: uniqueGenres,
-      styles: uniqueStyles
-    };
-
-  } catch (error) {
-    console.error('Error:', error);
-    return { genres: [], styles: [] };
-  }
-};
+// La taxonomie genres/styles Discogs est fixe (~15 genres, ~750 styles) et n'existe pas
+// via un endpoint de l'API : on utilise le dataset officiel (généré depuis le dump Discogs)
+// plutôt que d'échantillonner 2000 releases via 20 requêtes /database/search à chaque
+// chargement de page — ça évite de cramer le quota de requêtes avant même le premier spin.
+const fetchGenresAndStyles = (): Promise<GenresAndStylesResult> =>
+  Promise.resolve({ genres, styles });
 
 export { fetchGenresAndStyles };

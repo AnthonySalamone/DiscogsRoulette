@@ -19,4 +19,11 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // fonctions serverless Vercel (api/) : runtime Node/Edge, pas navigateur
+    files: ['api/**/*.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])
