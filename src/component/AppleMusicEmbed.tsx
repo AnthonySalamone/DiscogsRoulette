@@ -2,7 +2,7 @@ import type { AppleMusicEmbedProps } from "../types/appleMusicEmbed";
 
 const AppleMusicEmbed = ({ embedUrl }: AppleMusicEmbedProps) => {
   return (
-    <div className="w-full overflow-hidden rounded-xl">
+    <div className="win95-sunken w-full overflow-hidden">
       <iframe
         title="Apple Music album preview"
         allow="autoplay *; encrypted-media *;"

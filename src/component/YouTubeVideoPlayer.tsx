@@ -7,7 +7,7 @@ const YouTubeVideoPlayer = ({ videoId }: YouTubeVideoPlayerProps) => {
       height="auto"
       src={`https://www.youtube.com/embed/${videoId}`}
       allowFullScreen
-      className="rounded-xl aspect-video w-full"
+      className="win95-sunken aspect-video w-full"
     />
   );
 };

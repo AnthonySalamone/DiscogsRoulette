@@ -12,7 +12,7 @@ const AlbumResponse = ({
   if (!album) {
     if (error) {
       return (
-        <div className="p-4 md:p-8 border border-black rounded-xl">
+        <div className="win95-sunken p-4 md:p-6 mt-4">
           <p className="text-lg text-center">{error}</p>
         </div>
       );
@@ -21,7 +21,7 @@ const AlbumResponse = ({
   }
 
   return (
-    <div className="flex flex-col gap-4 md:gap-8 p-4 md:p-8 border border-black rounded-xl">
+    <div className="win95-sunken flex flex-col gap-4 md:gap-6 p-4 md:p-6 mt-4">
       <AlbumCard album={album} />
       <EmbedTabs album={album} />
     </div>

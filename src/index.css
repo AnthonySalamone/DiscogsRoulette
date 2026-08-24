@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+:root {
+  --win95-teal: #008080;
+  --win95-gray: #c0c0c0;
+  --win95-gray-dark: #808080;
+  --win95-white: #ffffff;
+  --win95-black: #000000;
+  --win95-navy: #000080;
+  --win95-navy-light: #1084d0;
+  --win95-highlight: #dfdfdf;
+}
+
 html,
 body,
 #root {
@@ -8,5 +19,112 @@ body,
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
+  background: var(--win95-teal);
+  color: var(--win95-black);
+}
+
+/* bouton/panneau "relevé" — le biseau 3D classique Windows 95 */
+.win95-raised {
+  background: var(--win95-gray);
+  border-top: 2px solid var(--win95-white);
+  border-left: 2px solid var(--win95-white);
+  border-right: 2px solid var(--win95-black);
+  border-bottom: 2px solid var(--win95-black);
+  box-shadow:
+    inset 1px 1px 0 var(--win95-highlight),
+    inset -1px -1px 0 var(--win95-gray-dark);
+}
+.win95-raised:active:not(:disabled) {
+  border-top-color: var(--win95-black);
+  border-left-color: var(--win95-black);
+  border-right-color: var(--win95-white);
+  border-bottom-color: var(--win95-white);
+  box-shadow: inset 1px 1px 0 var(--win95-gray-dark);
+}
+button.win95-raised:disabled {
+  color: var(--win95-gray-dark);
+  cursor: default;
+}
+
+/* panneau/champ "enfoncé" — l'inverse, pour les zones de contenu et les inputs */
+.win95-sunken {
+  background: var(--win95-white);
+  border-top: 2px solid var(--win95-gray-dark);
+  border-left: 2px solid var(--win95-gray-dark);
+  border-right: 2px solid var(--win95-white);
+  border-bottom: 2px solid var(--win95-white);
+  box-shadow:
+    inset 1px 1px 0 var(--win95-black),
+    inset -1px -1px 0 var(--win95-highlight);
+}
+
+/* la fenêtre elle-même : biseau relevé + ombre portée dure (pas de flou, 1996 oblige) */
+.win95-window {
+  background: var(--win95-gray);
+  border-top: 2px solid var(--win95-white);
+  border-left: 2px solid var(--win95-white);
+  border-right: 2px solid var(--win95-black);
+  border-bottom: 2px solid var(--win95-black);
+  box-shadow:
+    inset 1px 1px 0 var(--win95-highlight),
+    inset -1px -1px 0 var(--win95-gray-dark),
+    6px 6px 0 rgba(0, 0, 0, 0.35);
+}
+
+.win95-titlebar {
+  background: linear-gradient(to right, var(--win95-navy), var(--win95-navy-light));
+  color: var(--win95-white);
+}
+
+.win95-titlebar-btn {
+  background: var(--win95-gray);
+  border-top: 1px solid var(--win95-white);
+  border-left: 1px solid var(--win95-white);
+  border-right: 1px solid var(--win95-black);
+  border-bottom: 1px solid var(--win95-black);
+  color: var(--win95-black);
+  font-weight: bold;
+  line-height: 1;
+}
+.win95-titlebar-btn:active {
+  border-top-color: var(--win95-black);
+  border-left-color: var(--win95-black);
+  border-right-color: var(--win95-white);
+  border-bottom-color: var(--win95-white);
+}
+
+/* onglet Windows 95 : actif "soudé" au panneau du dessous, inactifs légèrement en retrait */
+.win95-tab {
+  background: var(--win95-gray);
+  border-top: 2px solid var(--win95-white);
+  border-left: 2px solid var(--win95-white);
+  border-right: 2px solid var(--win95-black);
+  color: var(--win95-black);
+}
+.win95-tab-active {
+  border-bottom: 2px solid var(--win95-gray);
+  margin-bottom: -2px;
+  position: relative;
+  z-index: 1;
+}
+.win95-tab-inactive {
+  border-bottom: 2px solid var(--win95-black);
+  margin-top: 4px;
+  color: var(--win95-gray-dark);
+}
+
+/* group box classique : bordure gravée fine + légende incrustée */
+.win95-groupbox {
+  border-top: 1px solid var(--win95-gray-dark);
+  border-left: 1px solid var(--win95-gray-dark);
+  border-right: 1px solid var(--win95-white);
+  border-bottom: 1px solid var(--win95-white);
+  padding: 0.25rem 0.75rem 0.75rem;
+  margin: 0;
+}
+.win95-groupbox legend {
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 0.8rem;
 }

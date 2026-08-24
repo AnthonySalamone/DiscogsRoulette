@@ -31,7 +31,7 @@ const EmbedTabs = ({ album }: { album: Album }) => {
         <ExternalSearchLink
           serviceName="Spotify"
           searchUrl={`https://open.spotify.com/search/${encodeURIComponent(searchQuery)}`}
-          note="Spotify won't hand out free API access anymore — Premium subscription required just to ask nicely. Petty."
+          note={`Spotify won't hand out free API access anymore — Premium subscription required just to ask nicely. Petty. Good news: you can still search ${searchQuery} on Spotify with the button below :)`}
         />
       ),
     },
@@ -42,7 +42,7 @@ const EmbedTabs = ({ album }: { album: Album }) => {
         <ExternalSearchLink
           serviceName="SoundCloud"
           searchUrl={`https://soundcloud.com/search?q=${encodeURIComponent(searchQuery)}`}
-          note="SoundCloud's pulling the same move — paid Artist Pro plan required for API access. Cheapskates, both of them."
+          note={`SoundCloud's pulling the same move — paid Artist Pro plan required for API access. Cheapskates, both of them. Good news: you can still search ${searchQuery} on SoundCloud with the button below :)`}
         />
       ),
     },
@@ -61,13 +61,17 @@ const EmbedTabs = ({ album }: { album: Album }) => {
 
   return (
     <div className="w-full">
-      <div className="flex gap-1 mb-4 overflow-x-auto">
+      {/* overflow-x seul sans overflow-y explicite fait passer overflow-y à "auto" aussi
+          (comportement CSS peu connu) — d'où la scrollbar verticale parasite sans le -hidden */}
+      <div className="flex gap-0.5 overflow-x-auto overflow-y-hidden">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setState({ albumId: album.id, activeTab: tab.id })}
-            className={`px-4 py-2 text-sm font-bold rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap ${
-              tab.id === activeTab.id ? "bg-black text-white" : "bg-black/5 hover:bg-black/10"
+            className={`win95-tab px-3 py-1.5 text-sm cursor-pointer whitespace-nowrap ${
+              tab.id === activeTab.id
+                ? "win95-tab-active font-bold"
+                : "win95-tab-inactive"
             }`}
           >
             {tab.label}
@@ -75,7 +79,7 @@ const EmbedTabs = ({ album }: { album: Album }) => {
         ))}
       </div>
 
-      {activeTab.content}
+      <div className="win95-raised p-3">{activeTab.content}</div>
     </div>
   );
 };
