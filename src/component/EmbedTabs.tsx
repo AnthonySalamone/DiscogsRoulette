@@ -31,7 +31,7 @@ const EmbedTabs = ({ album }: { album: Album }) => {
         <ExternalSearchLink
           serviceName="Spotify"
           searchUrl={`https://open.spotify.com/search/${encodeURIComponent(searchQuery)}`}
-          note="No inline preview here — Spotify's API now requires a Premium developer account."
+          note="Spotify won't hand out free API access anymore — Premium subscription required just to ask nicely. Petty."
         />
       ),
     },
@@ -42,7 +42,7 @@ const EmbedTabs = ({ album }: { album: Album }) => {
         <ExternalSearchLink
           serviceName="SoundCloud"
           searchUrl={`https://soundcloud.com/search?q=${encodeURIComponent(searchQuery)}`}
-          note="No inline preview here — SoundCloud's API now requires a paid Artist Pro subscription."
+          note="SoundCloud's pulling the same move — paid Artist Pro plan required for API access. Cheapskates, both of them."
         />
       ),
     },
