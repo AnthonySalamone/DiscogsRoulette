@@ -5,7 +5,11 @@ const getYouTubeId = (url: string) => {
 };
 
 const YouTubeVideoPlayer = ({ videoUrl }: YouTubeVideoPlayerProps) => {
-  const videoId = getYouTubeId(videoUrl);
+  const videoId = videoUrl ? getYouTubeId(videoUrl) : undefined;
+
+  if (!videoId) {
+    return <p className="text-sm text-center py-10">No YouTube video available.</p>;
+  }
 
   return (
     <iframe

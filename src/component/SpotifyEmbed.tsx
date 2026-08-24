@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
-import { getItunesURL } from "../services/getItunesURL";
-import type { AppleMusicEmbedProps } from "../types/appleMusicEmbed";
+import { getSpotifyEmbedUrl } from "../services/getSpotifyEmbedUrl";
+import type { SpotifyEmbedProps } from "../types/spotifyEmbed";
 
-const AppleMusicEmbed = ({ albumTitle, artistName }: AppleMusicEmbedProps) => {
+const SpotifyEmbed = ({ albumTitle, artistName }: SpotifyEmbedProps) => {
   const key = `${albumTitle}::${artistName}`;
-  // { key, url } : le résultat le plus récent et à quelle recherche il correspond —
-  // permet de dériver "en cours" pendant le render sans setState synchrone dans l'effect
-  // (cf. https://react.dev/learn/you-might-not-need-an-effect)
+  // même pattern que AppleMusicEmbed : dérive "en cours" pendant le render, pas de
+  // setState synchrone dans l'effect (cf. react-hooks/set-state-in-effect)
   const [result, setResult] = useState<{ key: string; url: string | null } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    getItunesURL(albumTitle, artistName).then((url) => {
+    getSpotifyEmbedUrl(albumTitle, artistName).then((url) => {
       if (!cancelled) setResult({ key, url });
     });
 
@@ -29,21 +28,21 @@ const AppleMusicEmbed = ({ albumTitle, artistName }: AppleMusicEmbedProps) => {
   }
 
   if (!result?.url) {
-    return <p className="text-sm text-center py-10">No Apple Music preview available.</p>;
+    return <p className="text-sm text-center py-10">No Spotify preview available.</p>;
   }
 
   return (
     <div className="w-full overflow-hidden rounded-xl">
       <iframe
-        title="Apple Music album preview"
-        allow="autoplay *; encrypted-media *;"
+        title="Spotify album preview"
         width="100%"
-        height={450}
+        height={352}
         src={result.url}
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         className="w-full border-0"
       />
     </div>
   );
 };
 
-export default AppleMusicEmbed;
+export default SpotifyEmbed;
