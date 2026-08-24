@@ -1,73 +1,44 @@
-# React + TypeScript + Vite
+# Discogs Roulette 🪩
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Tire un album au hasard sur Discogs (filtrable par année/genre/style) et écoute-le tout de
+suite via YouTube ou Apple Music, avec un lien de recherche rapide vers Spotify/SoundCloud.
+React + TypeScript + Vite, déployée en statique sur Vercel avec une fonction Edge en proxy
+vers l'API Discogs.
 
-Currently, two official plugins are available:
+## Développement local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+cp .env.local.example .env.local   # colle ton DISCOGS_TOKEN dedans
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- `npm run lint` — ESLint
+- `npm run build` — vérif TypeScript (`tsc -b`) + build Vite
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Variables d'environnement
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+| Variable | Où | Pourquoi |
+|---|---|---|
+| `DISCOGS_TOKEN` | `.env.local` en local, Environment Variables sur Vercel en prod | Personal Access Token Discogs (gratuit, [discogs.com/settings/developers](https://www.discogs.com/settings/developers) → *Generate new token*). Fait passer le quota API de 25 à 60 requêtes/minute. L'app marche sans (juste avec le quota réduit). |
+
+## Architecture
+
+- **Genres/styles** (`src/data/genreStyleMap.ts`) : table statique (15 genres, 757 styles),
+  vérifiée contre la taxonomie Discogs live. Zéro appel API pour peupler les selects —
+  l'ancienne approche (échantillonner 2000 releases via 20 requêtes à chaque chargement de
+  page) cramait le quota avant même le premier spin.
+- **Proxy Discogs** (`api/discogs/[...path].ts`) : fonction Edge Vercel. En dev, le proxy
+  équivalent est géré par `vite.config.ts` (`server.proxy`) — les deux existent parce que le
+  proxy dev-only de Vite ne tourne pas une fois buildé en statique.
+- **Spotify / SoundCloud** : pas de preview intégrée — les deux ont fermé/verrouillé leur API
+  gratuite (Spotify exige un compte Premium depuis février 2026, SoundCloud un abonnement
+  payant Artist Pro). Juste un lien de recherche externe.
+
+## Déployer
+
+1. [vercel.com](https://vercel.com) → connexion avec GitHub → *Add New* → *Project* → choisir
+   ce repo. Vite est détecté automatiquement, rien à configurer.
+2. Ajouter `DISCOGS_TOKEN` dans Project Settings → Environment Variables (sinon l'app tourne
+   quand même, juste avec un quota API réduit).
+3. Deploy.
