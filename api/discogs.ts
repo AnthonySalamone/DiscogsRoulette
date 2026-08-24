@@ -29,10 +29,17 @@ export default async function handler(request: Request): Promise<Response> {
 
   const discogsRes = await fetch(`https://api.discogs.com${targetPath}`, { headers });
 
+  // relaie aussi les en-têtes de rate-limit Discogs (x-discogs-ratelimit*) — pratique
+  // pour vérifier que DISCOGS_TOKEN est bien pris en compte (60/min vs 25/min)
+  const resHeaders = new Headers({
+    "Content-Type": discogsRes.headers.get("content-type") || "application/json",
+  });
+  for (const [key, value] of discogsRes.headers.entries()) {
+    if (key.toLowerCase().startsWith("x-discogs-ratelimit")) resHeaders.set(key, value);
+  }
+
   return new Response(discogsRes.body, {
     status: discogsRes.status,
-    headers: {
-      "Content-Type": discogsRes.headers.get("content-type") || "application/json",
-    },
+    headers: resHeaders,
   });
 }
