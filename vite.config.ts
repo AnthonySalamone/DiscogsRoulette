@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // lit .env.local (jamais commité) — même variable que celle attendue par
-  // api/discogs/[...path].ts en prod sur Vercel
+  // api/discogs.ts en prod sur Vercel
   const env = loadEnv(mode, process.cwd(), "");
   const discogsToken = env.DISCOGS_TOKEN;
 
@@ -16,7 +16,8 @@ export default defineConfig(({ mode }) => {
         "/api/discogs": {
           target: "https://api.discogs.com",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/discogs/, ""),
+          // même format que api/discogs.ts : le vrai chemin Discogs est dans ?path=...
+          rewrite: (path) => new URL(path, "http://x").searchParams.get("path") ?? "/",
           configure: (proxy) => {
             if (!discogsToken) return;
             proxy.on("proxyReq", (proxyReq) => {
