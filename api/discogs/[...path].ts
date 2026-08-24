@@ -1,3 +1,4 @@
+/// <reference types="node" />
 // Proxy Discogs pour la prod (Vercel Edge Function).
 //
 // En dev, vite.config.ts fait déjà ce travail via server.proxy — ce fichier ne sert
