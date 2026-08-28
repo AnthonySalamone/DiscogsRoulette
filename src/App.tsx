@@ -3,6 +3,7 @@ import AlbumResponse from "./component/albumResponce";
 import AlbumFinder from "./component/albumFinder";
 import { useGenreOptions } from "./hooks/useGenreOptions";
 import { useStylesOptions } from "./hooks/useStylesOptions";
+import { useDominantColor } from "./hooks/useDominantColor";
 import type { Album } from "./types/albumResponce";
 
 function App() {
@@ -12,6 +13,10 @@ function App() {
   const [album, setAlbum] = useState<Album | null>(null);
   const [albumError, setAlbumError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // couleur dominante de la pochette trouvée — undefined/null retombe sur
+  // l'anthracite par défaut défini dans index.css (background du body)
+  const dominantColor = useDominantColor(album?.images?.[0]?.resource_url);
 
   const { genreOptions, isLoading: isGenresLoading } = useGenreOptions();
   // ne montre que les styles qui existent réellement dans le genre choisi
@@ -31,7 +36,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen py-6 md:py-10 px-2 md:px-4">
+    <div
+      className="min-h-screen py-6 md:py-10 px-2 md:px-4 transition-colors duration-700"
+      style={{ backgroundColor: dominantColor ?? undefined }}
+    >
       <div className="win95-window max-w-3xl mx-auto">
         {/* barre de titre */}
         <div className="win95-titlebar flex items-center justify-between px-2 py-1">

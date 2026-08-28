@@ -9,6 +9,9 @@
   --win95-navy: #000080;
   --win95-navy-light: #1084d0;
   --win95-highlight: #dfdfdf;
+  /* fond par défaut du site quand aucune pochette n'a encore fourni de couleur
+     dominante (cf. App.tsx / useDominantColor) */
+  --win95-anthracite: #2b2f33;
 }
 
 html,
@@ -20,7 +23,10 @@ body,
 body {
   margin: 0;
   font-family: Tahoma, "MS Sans Serif", Geneva, Verdana, sans-serif;
-  background: var(--win95-teal);
+  /* le fond passe à la couleur dominante de la pochette trouvée une fois qu'elle
+     est connue (inline style sur le conteneur racine, cf. App.tsx) — ceci est
+     juste la valeur par défaut avant/sans album */
+  background: var(--win95-anthracite);
   color: var(--win95-black);
 }
 
