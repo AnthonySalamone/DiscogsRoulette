@@ -66,7 +66,7 @@ export default async function handler(request: Request): Promise<Response> {
   const cover = coverImage?.uri;
   const image = cover
     ? `${origin}/api/image-proxy?url=${encodeURIComponent(cover)}`
-    : `${origin}/og-image.png`;
+    : `${origin}/OG-image.png`;
   // dimensions explicites : sans elles, WhatsApp/Facebook n'affichent parfois pas
   // l'image au tout premier partage (le temps de la télécharger pour la mesurer)
   const [imageWidth, imageHeight] =
