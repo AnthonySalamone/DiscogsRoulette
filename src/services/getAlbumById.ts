@@ -14,6 +14,7 @@ const fetchRelease = async (id: string): Promise<AlbumSearchResult> => {
   try {
     const response = await discogsFetch(`/releases/${encodeURIComponent(id)}`);
     if (response.status === 404) return { status: "empty" };
+    if (response.status === 429) return { status: "rate-limited" };
     if (!response.ok) {
       console.error("Discogs release error:", response.status);
       return { status: "error" };
@@ -25,7 +26,7 @@ const fetchRelease = async (id: string): Promise<AlbumSearchResult> => {
   }
 };
 
-// "empty" = cette release n'existe pas (404), "error" = rate-limit / réseau
+// "empty" = cette release n'existe pas (404), "rate-limited" = 429, "error" = réseau / 5xx
 const getAlbumById = (id: string): Promise<AlbumSearchResult> => {
   const cached = releaseCache.get(id);
   if (cached) return cached;

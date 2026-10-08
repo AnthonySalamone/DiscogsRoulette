@@ -38,6 +38,20 @@ export default async function handler(request: Request): Promise<Response> {
     if (key.toLowerCase().startsWith("x-discogs-ratelimit")) resHeaders.set(key, value);
   }
 
+  // Cache CDN Vercel : le quota Discogs (60 req/min) est commun à TOUS les visiteurs
+  // (même token, mêmes IP sortantes), donc chaque réponse servie depuis le cache est
+  // une requête de gagnée. Une release ne change quasi jamais (un album partagé dans
+  // un groupe ne coûte qu'un appel) ; une page de recherche peut bouger un peu plus.
+  // Jamais les erreurs : un 429 mis en cache bloquerait tout le monde.
+  if (discogsRes.ok) {
+    const cacheControl = targetPath.startsWith("/releases/")
+      ? "public, s-maxage=86400, stale-while-revalidate=604800"
+      : targetPath.startsWith("/database/search")
+        ? "public, s-maxage=3600, stale-while-revalidate=86400"
+        : null;
+    if (cacheControl) resHeaders.set("Cache-Control", cacheControl);
+  }
+
   return new Response(discogsRes.body, {
     status: discogsRes.status,
     headers: resHeaders,

@@ -15,4 +15,10 @@ const discogsFetch = (path: string, init?: RequestInit): Promise<Response> => {
   });
 };
 
-export { DISCOGS_API_BASE, discogsFetch };
+// messages des résultats "rate-limited" / "error" (cf. AlbumSearchResult), partagés
+// entre la roulette (AlbumFinder) et le chargement par id (App)
+const RATE_LIMITED_MESSAGE =
+  "Lots of diggers right now 🪩 Discogs only lets us make 60 requests a minute for everyone. Try again in a few seconds.";
+const FETCH_ERROR_MESSAGE = "Couldn't reach Discogs. Check your connection and try again.";
+
+export { DISCOGS_API_BASE, discogsFetch, RATE_LIMITED_MESSAGE, FETCH_ERROR_MESSAGE };

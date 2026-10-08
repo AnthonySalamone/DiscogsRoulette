@@ -66,6 +66,18 @@ specific project again.
 `.env.local` via `loadEnv`) — it and `api/discogs.ts` need to be kept in sync if the proxy
 contract ever changes, since they're two independent implementations of the same protocol.
 
+### The Discogs quota is shared by every visitor
+
+All Discogs calls go out with the same token from Vercel's IPs, so the 60 req/min limit is one
+pool for the whole site (confirmed: `x-discogs-ratelimit-remaining` keeps decrementing across
+unrelated requests). A random spin costs 2 requests (search + `/releases/:id`). Mitigations:
+`api/discogs.ts` sets CDN `Cache-Control` on successful responses (`/releases/` 1 day,
+`/database/search` 1 hour, never on errors — a cached 429 would block everyone), and a 429
+surfaces as its own `rate-limited` result with a dedicated message. Variety: Discogs caps search
+at page 100 (10k results per sort), so `getOneRandomAlbum` learns each filter combo's page
+count on the first spin (page 1) and picks a random page + random sort afterwards, at no extra
+request.
+
 ### Vercel project settings that aren't obvious from the repo
 
 **Framework Preset must be "Other", not "Vite"**, in Vercel's Project Settings → Build and
@@ -79,7 +91,7 @@ apply here).
 
 ### `getOneRandomAlbum` returns a discriminated result, not `Album | null`
 
-`{ status: "ok", album } | { status: "empty" } | { status: "error" }` — a genuinely empty
+`{ status: "ok", album } | { status: "empty" } | { status: "rate-limited" } | { status: "error" }` — a genuinely empty
 result set (a real but overly-specific filter combo, e.g. a style that didn't exist yet in
 the chosen year) and an actual fetch/rate-limit failure are different situations and
 `AlbumFinder` shows a different message for each. Don't collapse these back into a single

@@ -3,6 +3,7 @@
 import { formatYear, yearOptionsFor } from "./select";
 import { SelectComponent } from "./selectComponent";
 import { getOneRandomAlbum } from "../services/getOneRandomAlbum";
+import { FETCH_ERROR_MESSAGE, RATE_LIMITED_MESSAGE } from "../services/discogsApi";
 import type AlbumFinderProps from "../types/albumFinder";
 
 const AlbumFinder = ({
@@ -112,7 +113,7 @@ const AlbumFinder = ({
             } else {
               setAlbum(null);
               setAlbumError(
-                "Too many requests. Wait a minute and try again."
+                result.status === "rate-limited" ? RATE_LIMITED_MESSAGE : FETCH_ERROR_MESSAGE
               );
             }
           } finally {

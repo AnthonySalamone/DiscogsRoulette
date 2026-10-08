@@ -3,6 +3,8 @@
 export type AlbumSearchResult =
   | { status: "ok"; album: Album }
   | { status: "empty" }
+  // 429 Discogs : quota de 60 req/min atteint, partagé par tous les visiteurs
+  | { status: "rate-limited" }
   | { status: "error" };
 
 export type Album = {

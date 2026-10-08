@@ -9,6 +9,7 @@ import { useStylesOptions } from "./hooks/useStylesOptions";
 import { useDominantColor } from "./hooks/useDominantColor";
 import { useFavorites } from "./hooks/useFavorites";
 import { getAlbumById } from "./services/getAlbumById";
+import { FETCH_ERROR_MESSAGE, RATE_LIMITED_MESSAGE } from "./services/discogsApi";
 import type { Album, AlbumSearchResult } from "./types/albumResponce";
 import { formatYear, yearModeOf, type YearMode } from "./component/select";
 import { buildSearch, listShareUrl, readUrlState } from "./utils/urlState";
@@ -68,7 +69,9 @@ function App() {
       setAlbumError(
         result.status === "empty"
           ? "This release doesn't exist on Discogs (anymore?)."
-          : "Too many requests. Wait a minute and try again."
+          : result.status === "rate-limited"
+            ? RATE_LIMITED_MESSAGE
+            : FETCH_ERROR_MESSAGE
       );
     }
     setIsLoading(false);
