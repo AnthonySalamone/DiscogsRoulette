@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import AlbumResponse from "./component/albumResponce";
 import AlbumFinder from "./component/albumFinder";
 import FavoritesPanel from "./component/FavoritesPanel";
+import AboutPanel from "./component/AboutPanel";
 import ShareButton from "./component/ShareButton";
 import { useGenreOptions } from "./hooks/useGenreOptions";
 import { useStylesOptions } from "./hooks/useStylesOptions";
@@ -28,7 +29,8 @@ function App() {
   // un lien ?release=… démarre directement en chargement (cf. l'effect de montage)
   const [isLoading, setIsLoading] = useState<boolean>(Boolean(initialUrl.release));
   const [sharedListParam, setSharedListParam] = useState<string>(initialUrl.list);
-  const [showFavorites, setShowFavorites] = useState(false);
+  // un seul panneau du menu ouvert à la fois
+  const [openPanel, setOpenPanel] = useState<"favorites" | "about" | null>(null);
 
   const { favorites, removeFavorite, addFavorites } = useFavorites();
   const sharedList = sharedListParam ? decodeSharedList(sharedListParam) : null;
@@ -136,7 +138,7 @@ function App() {
   }, [isLoading, album, genre, style, year, sharedListParam]);
 
   const openFavorite = (id: string) => {
-    setShowFavorites(false);
+    setOpenPanel(null);
     openRelease(id);
   };
 
@@ -171,14 +173,20 @@ function App() {
           className="text-sm px-2 py-1 border-b-2 border-[var(--win95-gray-dark)]"
           style={{ background: "var(--win95-gray)" }}
         >
-          <button
-            type="button"
-            className={`px-1 cursor-pointer ${showFavorites ? "win95-sunken" : ""}`}
-            onClick={() => setShowFavorites((open) => !open)}
-            aria-expanded={showFavorites}
-          >
-            Favorites ({favorites.length})
-          </button>
+          {([
+            ["favorites", `Favorites (${favorites.length})`],
+            ["about", "About"],
+          ] as const).map(([panel, label]) => (
+            <button
+              key={panel}
+              type="button"
+              className={`mr-2 px-1 cursor-pointer ${openPanel === panel ? "win95-sunken" : ""}`}
+              onClick={() => setOpenPanel((open) => (open === panel ? null : panel))}
+              aria-expanded={openPanel === panel}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* contenu */}
@@ -218,14 +226,16 @@ function App() {
             </div>
           )}
 
-          {showFavorites && (
+          {openPanel === "about" && <AboutPanel onClose={() => setOpenPanel(null)} />}
+
+          {openPanel === "favorites" && (
             <FavoritesPanel
               title={`My favorites (${favorites.length})`}
               favorites={favorites}
               emptyMessage="No favorites yet — hit ♡ like on an album you dig."
               onOpen={openFavorite}
               onRemove={removeFavorite}
-              onClose={() => setShowFavorites(false)}
+              onClose={() => setOpenPanel(null)}
               actions={
                 favorites.length > 0 && (
                   <ShareButton
@@ -265,8 +275,9 @@ function App() {
         </div>
 
         {/* barre de statut */}
-        <div className="win95-sunken mx-2 mb-2 px-2 py-1 text-xs">
-          Digging for music since 2026
+        <div className="win95-sunken mx-2 mb-2 px-2 py-1 text-xs flex flex-wrap justify-between gap-x-4">
+          <span>Digging for music since 2026</span>
+          <span>© {new Date().getFullYear()} Anthony Salamone</span>
         </div>
       </div>
     </div>

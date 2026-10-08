@@ -8,8 +8,10 @@ const AlbumCard = ({ album }: AlbumCardProps) => {
   const liked = isFavorite(album.id);
   const artistName = album.artists?.[0]?.name;
 
+  // mobile : pochette en haut sur toute la largeur (column-reverse, elle est 2e dans
+  // le DOM), desktop : infos à gauche, pochette à droite
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col-reverse md:flex-row gap-4">
       <div className="flex-1 flex flex-col gap-2 justify-between">
         <div>
           <h1 className="text-2xl font-bold">{album.title}</h1>
@@ -61,7 +63,7 @@ const AlbumCard = ({ album }: AlbumCardProps) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                details page
+                discogs page
               </a>
             )}
             <a
@@ -70,13 +72,15 @@ const AlbumCard = ({ album }: AlbumCardProps) => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              get your copy
+              get your copy on discogs
             </a>
           </div>
         </div>
       </div>
       {album.images?.[0]?.resource_url && (
-        <div className="win95-sunken flex-1 aspect-square overflow-hidden p-1">
+        // md:self-start : sans ça, la rangée flex étire la pochette à la hauteur de la
+        // colonne de texte quand celle-ci est plus haute, et le ratio 1:1 saute
+        <div className="win95-sunken flex-1 md:self-start aspect-square overflow-hidden p-1">
           <img
             src={album.images[0].resource_url}
             alt={album.title}

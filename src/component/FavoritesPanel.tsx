@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Favorite } from "../types/favorite";
+import Win95Dialog from "./Win95Dialog";
 
 // Sert pour ses propres favoris (avec ✕ par ligne) comme pour une liste partagée reçue
 // par lien (lecture seule) — seules les actions du bas changent.
@@ -21,61 +22,48 @@ const FavoritesPanel = ({
   actions?: ReactNode;
 }) => {
   return (
-    <div className="win95-window mb-4">
-      <div className="win95-titlebar flex items-center justify-between px-2 py-1">
-        <span className="font-bold text-sm truncate">♥ {title}</span>
-        <button
-          type="button"
-          className="win95-titlebar-btn w-5 h-5 text-xs cursor-pointer"
-          onClick={onClose}
-          aria-label="Close"
-        >
-          ✕
-        </button>
-      </div>
-      <div className="p-2 flex flex-col gap-2">
-        {favorites.length === 0 ? (
-          <p className="win95-sunken p-4 text-center text-sm">{emptyMessage}</p>
-        ) : (
-          <ul className="win95-sunken max-h-80 overflow-y-auto">
-            {favorites.map((favorite) => (
-              <li key={favorite.id} className="flex items-center gap-2 p-1 hover:bg-[var(--win95-highlight)]">
+    <Win95Dialog title={`♥ ${title}`} onClose={onClose}>
+      {favorites.length === 0 ? (
+        <p className="win95-sunken p-4 text-center text-sm">{emptyMessage}</p>
+      ) : (
+        <ul className="win95-sunken max-h-80 overflow-y-auto">
+          {favorites.map((favorite) => (
+            <li key={favorite.id} className="flex items-center gap-2 p-1 hover:bg-[var(--win95-highlight)]">
+              <button
+                type="button"
+                className="flex flex-1 items-center gap-2 text-left cursor-pointer min-w-0"
+                onClick={() => onOpen(favorite.id)}
+              >
+                {favorite.thumb ? (
+                  <img src={favorite.thumb} alt="" className="w-10 h-10 object-cover shrink-0" />
+                ) : (
+                  <span className="w-10 h-10 shrink-0 flex items-center justify-center text-xl" aria-hidden="true">
+                    💿
+                  </span>
+                )}
+                <span className="min-w-0">
+                  <span className="block font-bold truncate">{favorite.title}</span>
+                  <span className="block text-sm truncate" style={{ color: "var(--win95-gray-dark)" }}>
+                    {[favorite.artist, favorite.year].filter(Boolean).join(" · ")}
+                  </span>
+                </span>
+              </button>
+              {onRemove && (
                 <button
                   type="button"
-                  className="flex flex-1 items-center gap-2 text-left cursor-pointer min-w-0"
-                  onClick={() => onOpen(favorite.id)}
+                  className="win95-raised w-7 h-7 text-xs cursor-pointer shrink-0"
+                  onClick={() => onRemove(favorite.id)}
+                  aria-label={`Remove ${favorite.title} from favorites`}
                 >
-                  {favorite.thumb ? (
-                    <img src={favorite.thumb} alt="" className="w-10 h-10 object-cover shrink-0" />
-                  ) : (
-                    <span className="w-10 h-10 shrink-0 flex items-center justify-center text-xl" aria-hidden="true">
-                      💿
-                    </span>
-                  )}
-                  <span className="min-w-0">
-                    <span className="block font-bold truncate">{favorite.title}</span>
-                    <span className="block text-sm truncate" style={{ color: "var(--win95-gray-dark)" }}>
-                      {[favorite.artist, favorite.year].filter(Boolean).join(" · ")}
-                    </span>
-                  </span>
+                  ✕
                 </button>
-                {onRemove && (
-                  <button
-                    type="button"
-                    className="win95-raised w-7 h-7 text-xs cursor-pointer shrink-0"
-                    onClick={() => onRemove(favorite.id)}
-                    aria-label={`Remove ${favorite.title} from favorites`}
-                  >
-                    ✕
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-        {actions && <div className="flex gap-2 justify-end">{actions}</div>}
-      </div>
-    </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {actions && <div className="flex gap-2 justify-end">{actions}</div>}
+    </Win95Dialog>
   );
 };
 
