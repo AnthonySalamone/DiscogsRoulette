@@ -52,19 +52,31 @@ const selectStyles: StylesConfig<SelectOption, false> = {
     ...base,
     color: 'var(--win95-black)',
   }),
+  clearIndicator: (base) => ({
+    ...base,
+    color: 'var(--win95-gray-dark)',
+    cursor: 'pointer',
+    ':hover': { color: 'var(--win95-black)' },
+  }),
 };
 
-const SelectComponent = ({ options, instanceId, onChange }: {
+// contrôlé par `value` (la valeur string stockée dans App) : c'est ce qui permet au
+// bouton Reset / au changement de genre / au changement de mode d'années de vider le
+// champ affiché, pas seulement le state
+const SelectComponent = ({ options, instanceId, value, onChange }: {
   options: SelectOption[];
   instanceId: string;
+  value: string;
   onChange?: (option: SelectOption | null) => void;
 }) => {
   return (
     <Select
       options={options}
       instanceId={instanceId}
+      value={options.find((option) => option.value === value) ?? null}
       onChange={onChange}
       styles={selectStyles}
+      isClearable
     />
   );
 };

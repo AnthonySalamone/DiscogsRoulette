@@ -6,7 +6,7 @@ import ExternalSearchLink from "./ExternalSearchLink";
 import { useAppleMusicEmbedUrl } from "../hooks/useAppleMusicEmbedUrl";
 import { getYouTubeVideoId } from "../utils/youtube";
 
-type TabId = "youtube" | "apple" | "spotify" | "soundcloud";
+type TabId = "youtube" | "apple" | "bandcamp" | "spotify" | "soundcloud";
 
 const EmbedTabs = ({ album }: { album: Album }) => {
   const artistName = album.artists?.[0]?.name ?? "";
@@ -15,8 +15,8 @@ const EmbedTabs = ({ album }: { album: Album }) => {
   const youTubeVideoId = getYouTubeVideoId(album.videos?.[0]?.uri);
   const appleEmbedUrl = useAppleMusicEmbedUrl(album.title, artistName);
 
-  // seuls YouTube et Apple Music dépendent d'un contenu trouvé ou non ; Spotify et
-  // SoundCloud sont de simples liens de recherche, donc toujours affichés
+  // seuls YouTube et Apple Music dépendent d'un contenu trouvé ou non ; Bandcamp, Spotify
+  // et SoundCloud sont de simples liens de recherche, donc toujours affichés
   const tabs: { id: TabId; label: string; content: ReactNode }[] = [
     ...(youTubeVideoId
       ? [{ id: "youtube" as const, label: "YouTube", content: <YouTubeVideoPlayer videoId={youTubeVideoId} /> }]
@@ -24,6 +24,17 @@ const EmbedTabs = ({ album }: { album: Album }) => {
     ...(appleEmbedUrl
       ? [{ id: "apple" as const, label: "Apple Music", content: <AppleMusicEmbed embedUrl={appleEmbedUrl} /> }]
       : []),
+    {
+      id: "bandcamp",
+      label: "Bandcamp",
+      content: (
+        <ExternalSearchLink
+          serviceName="Bandcamp"
+          searchUrl={`https://bandcamp.com/search?q=${encodeURIComponent(searchQuery)}&item_type=a`}
+          note={`Bandcamp closed its public API years ago, and its embeddable player needs an internal album ID we can't get without scraping. The upside: buying there is the best way to actually pay the artist. Search ${searchQuery} on Bandcamp with the button below :)`}
+        />
+      ),
+    },
     {
       id: "spotify",
       label: "Spotify",

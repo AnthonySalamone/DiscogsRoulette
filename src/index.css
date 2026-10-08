@@ -134,3 +134,8 @@ button.win95-raised:disabled {
   font-weight: bold;
   font-size: 0.8rem;
 }
+
+/* bouton radio : le natif suffit, juste recoloré à la couleur de sélection Win95 */
+.win95-radio {
+  accent-color: var(--win95-navy);
+}

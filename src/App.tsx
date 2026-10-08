@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AlbumResponse from "./component/albumResponce";
 import AlbumFinder from "./component/albumFinder";
 import { useGenreOptions } from "./hooks/useGenreOptions";
 import { useStylesOptions } from "./hooks/useStylesOptions";
 import { useDominantColor } from "./hooks/useDominantColor";
 import type { Album } from "./types/albumResponce";
+import { formatYear } from "./component/select";
+
+const BASE_TITLE = "Discogs Roulette 🪩";
 
 function App() {
   const [genre, setGenre] = useState<string>("");
@@ -35,6 +38,17 @@ function App() {
     setStyle("");
   }
 
+  // "Jazz · Bebop · 1959" — partagé entre l'onglet du navigateur et la barre de titre Win95
+  const filterSummary = [genre, style, year && formatYear(year)]
+    .filter(Boolean)
+    .join(" · ");
+
+  // synchronisation avec un système externe (le <title> du document), pas un setState :
+  // un effect est légitime ici
+  useEffect(() => {
+    document.title = filterSummary ? `${filterSummary} — ${BASE_TITLE}` : BASE_TITLE;
+  }, [filterSummary]);
+
   return (
     <div
       className="min-h-screen py-6 md:py-10 px-2 md:px-4 transition-colors duration-700"
@@ -43,8 +57,10 @@ function App() {
       <div className="win95-window max-w-3xl mx-auto">
         {/* barre de titre */}
         <div className="win95-titlebar flex items-center justify-between px-2 py-1">
-          <span className="font-bold text-sm flex items-center gap-1.5">
-            💿 Discogs Roulette.exe
+          <span className="font-bold text-sm flex items-center gap-1.5 min-w-0">
+            <span className="truncate">
+              💿 Discogs Roulette.exe{filterSummary && ` - ${filterSummary}`}
+            </span>
           </span>
           <div className="flex gap-1">
             <button className="win95-titlebar-btn w-5 h-5 text-xs" aria-hidden="true">

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A single-page app that pulls a random release from Discogs (filterable by year/genre/style)
 and surfaces a listen-now preview via YouTube/Apple Music, with search-link fallbacks for
-Spotify/SoundCloud. React 19 + TypeScript + Vite + Tailwind v4, deployed on Vercel as a
+Bandcamp/Spotify/SoundCloud. React 19 + TypeScript + Vite + Tailwind v4, deployed on Vercel as a
 static build plus one Edge Function that proxies Discogs.
 
 ## Commands
@@ -91,7 +91,9 @@ the chosen year) and an actual fetch/rate-limit failure are different situations
 videoId/embedUrl) — `EmbedTabs` owns the availability check for each and only renders a tab
 for it when there's content: YouTube synchronously (from `album.videos[0].uri`), Apple Music
 via the `useAppleMusicEmbedUrl` hook (iTunes Search API, no key — the search happens whether
-or not that tab ends up shown, since the tab list itself depends on the result). Spotify and
+or not that tab ends up shown, since the tab list itself depends on the result). Bandcamp
+always shows a search-link tab too (no public API; its embed player needs an internal album
+ID only obtainable by scraping). Spotify and
 SoundCloud always show a tab (they're just external search links, via the shared
 `ExternalSearchLink` component) because both platforms locked their APIs behind paid tiers in
 2026 (Spotify: the *account creating the app* needs Premium; SoundCloud: needs an Artist Pro
