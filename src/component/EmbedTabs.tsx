@@ -5,12 +5,16 @@ import AppleMusicEmbed from "./AppleMusicEmbed";
 import ExternalSearchLink from "./ExternalSearchLink";
 import { useAppleMusicEmbedUrl } from "../hooks/useAppleMusicEmbedUrl";
 import { getYouTubeVideoId } from "../utils/youtube";
+import { buildSearchQuery } from "../utils/searchQuery";
 
 type TabId = "youtube" | "apple" | "bandcamp" | "spotify" | "soundcloud";
 
 const EmbedTabs = ({ album }: { album: Album }) => {
   const artistName = album.artists?.[0]?.name ?? "";
-  const searchQuery = [artistName, album.title].filter(Boolean).join(" ");
+  // Bandcamp/Spotify/SoundCloud : pas d'API pour vérifier si la recherche précise trouve
+  // quelque chose, donc on envoie directement la version simplifiée, qui ramène plus
+  // souvent l'album (au pire au milieu d'autres résultats) qu'une page vide
+  const searchQuery = buildSearchQuery(artistName, album.title, true);
 
   const youTubeVideoId = getYouTubeVideoId(album.videos?.[0]?.uri);
   const appleEmbedUrl = useAppleMusicEmbedUrl(album.title, artistName);
