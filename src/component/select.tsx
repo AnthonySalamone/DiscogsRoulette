@@ -27,8 +27,16 @@ const yearRangeOptions = (step: 5 | 10): SelectOption[] => {
 const yearOptionsFor = (mode: YearMode): SelectOption[] =>
   mode === "single" ? yearOptions : yearRangeOptions(mode);
 
+// retrouve le mode depuis une valeur (URL partagée, bouton retour) : "1994" → année
+// seule, "2020-2024" / "2025-2026" → 5 ans, "2010-2019" / "2020-2026" → 10 ans
+const yearModeOf = (year: string): YearMode => {
+  const [start, end] = year.split("-").map(Number);
+  if (!end) return "single";
+  return end - start + 1 > 5 ? 10 : 5;
+};
+
 // "1990-1999" → "1990–1999" pour l'affichage (bouton, titre, message d'erreur)
 const formatYear = (year: string) => year.replace("-", "–");
 
-export { yearOptions, yearRangeOptions, yearOptionsFor, formatYear };
+export { yearOptions, yearRangeOptions, yearOptionsFor, yearModeOf, formatYear };
 export type { YearMode };

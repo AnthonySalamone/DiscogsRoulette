@@ -1,21 +1,37 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AlbumResponse from "./component/albumResponce";
 import AlbumFinder from "./component/albumFinder";
+import FavoritesPanel from "./component/FavoritesPanel";
+import ShareButton from "./component/ShareButton";
 import { useGenreOptions } from "./hooks/useGenreOptions";
 import { useStylesOptions } from "./hooks/useStylesOptions";
 import { useDominantColor } from "./hooks/useDominantColor";
-import type { Album } from "./types/albumResponce";
-import { formatYear } from "./component/select";
+import { useFavorites } from "./hooks/useFavorites";
+import { getAlbumById } from "./services/getAlbumById";
+import type { Album, AlbumSearchResult } from "./types/albumResponce";
+import { formatYear, yearModeOf, type YearMode } from "./component/select";
+import { buildSearch, listShareUrl, readUrlState } from "./utils/urlState";
+import { decodeSharedList, encodeSharedList } from "./utils/sharedList";
 
 const BASE_TITLE = "Discogs Roulette 🪩";
 
 function App() {
-  const [genre, setGenre] = useState<string>("");
-  const [year, setYear] = useState<string>("");
-  const [style, setStyle] = useState<string>("");
+  // l'URL est lue une seule fois pour l'état initial (lien partagé, rechargement) ;
+  // ensuite c'est l'effect plus bas qui la tient à jour, et popstate qui la relit
+  const [initialUrl] = useState(readUrlState);
+  const [genre, setGenre] = useState<string>(initialUrl.genre);
+  const [year, setYear] = useState<string>(initialUrl.year);
+  const [yearMode, setYearMode] = useState<YearMode>(() => yearModeOf(initialUrl.year));
+  const [style, setStyle] = useState<string>(initialUrl.style);
   const [album, setAlbum] = useState<Album | null>(null);
   const [albumError, setAlbumError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // un lien ?release=… démarre directement en chargement (cf. l'effect de montage)
+  const [isLoading, setIsLoading] = useState<boolean>(Boolean(initialUrl.release));
+  const [sharedListParam, setSharedListParam] = useState<string>(initialUrl.list);
+  const [showFavorites, setShowFavorites] = useState(false);
+
+  const { favorites, removeFavorite, addFavorites } = useFavorites();
+  const sharedList = sharedListParam ? decodeSharedList(sharedListParam) : null;
 
   // couleur dominante de la pochette trouvée — undefined/null retombe sur
   // l'anthracite par défaut défini dans index.css (background du body)
@@ -29,15 +45,6 @@ function App() {
   const selectHasOptions =
     genreOptions.length > 0 && styleOptions.length > 0;
 
-  // le style choisi peut ne plus exister dans le nouveau genre : on le réinitialise
-  // pendant le render (cf. https://react.dev/learn/you-might-not-need-an-effect),
-  // pas dans un effect, pour éviter un rendu en cascade superflu
-  const [prevGenre, setPrevGenre] = useState(genre);
-  if (genre !== prevGenre) {
-    setPrevGenre(genre);
-    setStyle("");
-  }
-
   // "Jazz · Bebop · 1959" — partagé entre l'onglet du navigateur et la barre de titre Win95
   const filterSummary = [genre, style, year && formatYear(year)]
     .filter(Boolean)
@@ -48,6 +55,90 @@ function App() {
   useEffect(() => {
     document.title = filterSummary ? `${filterSummary} — ${BASE_TITLE}` : BASE_TITLE;
   }, [filterSummary]);
+
+  // résultat d'un chargement par id (lien partagé, favori, bouton retour)
+  const showRelease = useCallback((result: AlbumSearchResult) => {
+    if (result.status === "ok") {
+      setAlbum(result.album);
+      setAlbumError(null);
+    } else {
+      setAlbum(null);
+      setAlbumError(
+        result.status === "empty"
+          ? "This release doesn't exist on Discogs (anymore?)."
+          : "Too many requests. Wait a minute and try again."
+      );
+    }
+    setIsLoading(false);
+  }, []);
+
+  const openRelease = useCallback(
+    (id: string) => {
+      setIsLoading(true);
+      setAlbumError(null);
+      getAlbumById(id).then(showRelease);
+    },
+    [showRelease]
+  );
+
+  // lien partagé ?release=… : isLoading est déjà à true depuis le useState, on ne
+  // fait ici que l'appel (pas de setState synchrone dans l'effect)
+  useEffect(() => {
+    if (!initialUrl.release) return;
+    let cancelled = false;
+    getAlbumById(initialUrl.release).then((result) => {
+      if (!cancelled) showRelease(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [initialUrl.release, showRelease]);
+
+  // bouton retour/avant du navigateur : on relit l'URL et on remet l'app dans cet état
+  // (les albums déjà vus sortent du cache de getAlbumById, sans appel Discogs)
+  useEffect(() => {
+    const onPopState = () => {
+      const state = readUrlState();
+      setGenre(state.genre);
+      setStyle(state.style);
+      setYear(state.year);
+      setYearMode(yearModeOf(state.year));
+      setSharedListParam(state.list);
+      if (state.release) {
+        openRelease(state.release);
+      } else {
+        setAlbum(null);
+        setAlbumError(null);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [openRelease]);
+
+  // l'URL suit l'état (synchronisation avec un système externe, l'historique) :
+  // nouvel album → pushState, pour que le bouton retour ramène au précédent ;
+  // simple changement de filtre → replaceState, pour ne pas polluer l'historique.
+  // Rien pendant un chargement, sinon le ?release= d'un lien partagé serait effacé
+  // avant même que l'album arrive.
+  useEffect(() => {
+    if (isLoading) return;
+    const albumId = album ? String(album.id) : "";
+    const next = buildSearch({ release: albumId, genre, style, year, list: sharedListParam });
+    if (next === window.location.search) return;
+
+    const currentRelease = new URLSearchParams(window.location.search).get("release") ?? "";
+    const url = next || window.location.pathname;
+    if (albumId && albumId !== currentRelease) {
+      window.history.pushState(null, "", url);
+    } else {
+      window.history.replaceState(null, "", url);
+    }
+  }, [isLoading, album, genre, style, year, sharedListParam]);
+
+  const openFavorite = (id: string) => {
+    setShowFavorites(false);
+    openRelease(id);
+  };
 
   return (
     <div
@@ -83,6 +174,14 @@ function App() {
           <span className="mr-4">File</span>
           <span className="mr-4">Edit</span>
           <span className="mr-4">View</span>
+          <button
+            type="button"
+            className={`mr-4 px-1 cursor-pointer ${showFavorites ? "win95-sunken" : ""}`}
+            onClick={() => setShowFavorites((open) => !open)}
+            aria-expanded={showFavorites}
+          >
+            Favorites ({favorites.length})
+          </button>
           <span>Help</span>
         </div>
 
@@ -97,17 +196,66 @@ function App() {
             </div>
           )}
 
+          {sharedList && (
+            <FavoritesPanel
+              title={`Shared favorites (${sharedList.length})`}
+              favorites={sharedList}
+              emptyMessage="This shared list is empty."
+              onOpen={openRelease}
+              onClose={() => setSharedListParam("")}
+              actions={
+                <button
+                  type="button"
+                  className="win95-raised px-3 py-1 cursor-pointer text-sm"
+                  disabled={sharedList.every((f) => favorites.some((mine) => mine.id === f.id))}
+                  onClick={() => addFavorites(sharedList)}
+                >
+                  Add all to my favorites
+                </button>
+              }
+            />
+          )}
+
+          {sharedListParam && !sharedList && (
+            <div className="win95-sunken p-4 mb-4 text-center">
+              <p>This shared list link looks broken (maybe cut off when it was pasted?).</p>
+            </div>
+          )}
+
+          {showFavorites && (
+            <FavoritesPanel
+              title={`My favorites (${favorites.length})`}
+              favorites={favorites}
+              emptyMessage="No favorites yet — hit ♡ like on an album you dig."
+              onOpen={openFavorite}
+              onRemove={removeFavorite}
+              onClose={() => setShowFavorites(false)}
+              actions={
+                favorites.length > 0 && (
+                  <ShareButton
+                    className="px-3 py-1 text-sm"
+                    label="Share my list"
+                    title="My Discogs Roulette favorites"
+                    getUrl={() => listShareUrl(encodeSharedList(favorites))}
+                  />
+                )
+              }
+            />
+          )}
+
           {!isOptionsLoading && selectHasOptions && (
             <>
               <AlbumFinder
                 genre={genre}
                 year={year}
+                yearMode={yearMode}
                 style={style}
                 genreOptions={genreOptions}
                 styleOptions={styleOptions}
                 isLoading={isLoading}
                 setGenre={setGenre}
                 setYear={setYear}
+                setYearMode={setYearMode}
                 setStyle={setStyle}
                 setAlbum={setAlbum}
                 setAlbumError={setAlbumError}

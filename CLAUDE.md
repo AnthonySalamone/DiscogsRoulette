@@ -103,13 +103,43 @@ undocumented endpoint, which is deliberately not what's implemented here.
 ### State resets happen during render, not in a `useEffect`
 
 Search the codebase for the pattern `if (x !== prevX) { setPrevX(x); setY(...) }` (used in
-`App.tsx` for resetting `style` when `genre` changes, in `EmbedTabs` for resetting the active
-tab when the album changes, and inside `useAppleMusicEmbedUrl`/would-be loading states). This
+`EmbedTabs` for resetting the active tab when the album changes, and inside
+`useAppleMusicEmbedUrl`/would-be loading states). Exception: resetting `style` when `genre`
+changes happens in the genre select's `onChange` handler instead (`albumFinder.tsx`), because
+genre and style can also change *together* from the URL (back button), where the URL's style
+must survive — a render-time `prevGenre` reset would wipe it. This
 is intentional — `react-hooks/set-state-in-effect` (from `eslint-plugin-react-hooks`) flags a
 synchronous `setState` inside a `useEffect` body, and the React-docs-recommended fix for "some
 state needs to reset when a prop/value changes" is adjusting state during render instead of
 in an effect. Don't reintroduce `useEffect(() => setX(...), [dep])` for this class of
 problem — it'll fail lint.
+
+### The URL is the app's shareable state
+
+`?release=&genre=&style=&year=&list=` (`src/utils/urlState.ts`). `App` reads it once for
+initial state (a `?release=` link starts with `isLoading: true` so the mount effect only
+fetches, never setStates synchronously), an effect writes it back — `pushState` when a *new
+album* is shown (so Back returns to the previous album), `replaceState` for filter-only
+changes, nothing while loading — and a `popstate` listener restores everything from it.
+`getAlbumById` (`/releases/:id`) caches promises for the session, so Back/Forward and reopening
+favorites don't spend Discogs quota. Two gotchas this depends on:
+- **Embed iframes are keyed by videoId/embedUrl** (`YouTubeVideoPlayer`, `AppleMusicEmbed`).
+  Changing an existing iframe's `src` adds an entry to the browser's history, which made every
+  new album cost two Back presses. Keep the `key`.
+- **Shared album links go through `api/share.ts`** (`/api/share?release=…`, prod only — `npm run
+  dev` uses `/?release=` directly, see `albumShareUrl`). It serves per-album Open Graph tags
+  (cover via `api/image-proxy.ts`) for Discord/WhatsApp/iMessage previews, then redirects humans
+  to `/?release=…`. Its `og:url` points at itself on purpose (Facebook re-scrapes `og:url`).
+
+### Favorites live in localStorage, shared lists live in the URL
+
+`useFavorites` is a `useSyncExternalStore` over `localStorage` (key
+`discogsroulette:favorites`, in-memory fallback when storage throws, synced across tabs), storing
+a small `Favorite` snapshot rather than the full album so the panel renders without API calls.
+No backend, so favorites are per-device. "Share my list" encodes the whole list into `?list=`
+(`src/utils/sharedList.ts`: base64url JSON of `[id, artist, title, year]`, no thumbnails — they
+are ~175 chars each) instead of ids alone, because opening an ids-only list would cost one
+Discogs request per album.
 
 ### Windows-95 UI kit
 

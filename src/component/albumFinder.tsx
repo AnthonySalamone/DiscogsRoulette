@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from "react";
-import { formatYear, yearOptionsFor, type YearMode } from "./select";
+import { formatYear, yearOptionsFor } from "./select";
 import { SelectComponent } from "./selectComponent";
 import { getOneRandomAlbum } from "../services/getOneRandomAlbum";
 import type AlbumFinderProps from "../types/albumFinder";
@@ -9,18 +8,19 @@ import type AlbumFinderProps from "../types/albumFinder";
 const AlbumFinder = ({
   genre,
   year,
+  yearMode,
   style,
   genreOptions,
   styleOptions,
   isLoading,
   setGenre,
   setYear,
+  setYearMode,
   setStyle,
   setAlbum,
   setAlbumError,
   setIsLoading,
 }: AlbumFinderProps) => {
-  const [yearMode, setYearMode] = useState<YearMode>("single");
   const hasFilters = Boolean(genre || year || style);
 
   return (
@@ -63,7 +63,14 @@ const AlbumFinder = ({
           options={genreOptions}
           instanceId="genre-select"
           value={genre}
-          onChange={(option) => setGenre(option?.value ?? "")}
+          onChange={(option) => {
+            // le style choisi peut ne plus exister dans le nouveau genre. Remis à zéro
+            // ici plutôt que pendant le render (prevGenre) : genre et style peuvent
+            // aussi changer ensemble depuis l'URL (bouton retour), et ce style-là
+            // doit être conservé
+            setGenre(option?.value ?? "");
+            setStyle("");
+          }}
         />
       </fieldset>
       <fieldset className="win95-groupbox">

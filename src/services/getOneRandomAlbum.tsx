@@ -1,5 +1,6 @@
 import type { AlbumSearchResult } from "../types/albumResponce";
 import { discogsFetch } from "./discogsApi";
+import { rememberAlbum } from "./getAlbumById";
 
 const getOneRandomAlbum = async (
   genre: string,
@@ -34,6 +35,7 @@ const getOneRandomAlbum = async (
 
       if (releaseInfo.ok) {
         const fullAlbum = await releaseInfo.json();
+        rememberAlbum(fullAlbum);
         return { status: "ok", album: fullAlbum };
       }
 

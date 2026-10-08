@@ -7,7 +7,8 @@ export type AlbumSearchResult =
 
 export type Album = {
   uri: string;
-  id: string;
+  // Discogs renvoie un nombre ; comparer via String(album.id)
+  id: string | number;
   title: string;
   artists: {
     name: string;
@@ -18,6 +19,7 @@ export type Album = {
   styles: string[];
   images: {
     resource_url: string;
+    uri150?: string;
   }[];
   videos: {
     uri: string;

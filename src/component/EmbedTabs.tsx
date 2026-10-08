@@ -66,11 +66,11 @@ const EmbedTabs = ({ album }: { album: Album }) => {
   // l'onglet actif suit l'album affiché : dérivé pendant le render (pas un effect) pour
   // retomber sur le premier onglet dispo quand l'album change, cf. App.tsx / genre-style
   const [state, setState] = useState<{ albumId: string; activeTab: TabId }>({
-    albumId: album.id,
+    albumId: String(album.id),
     activeTab: tabs[0].id,
   });
-  if (state.albumId !== album.id) {
-    setState({ albumId: album.id, activeTab: tabs[0].id });
+  if (state.albumId !== String(album.id)) {
+    setState({ albumId: String(album.id), activeTab: tabs[0].id });
   }
   const activeTab = tabs.find((t) => t.id === state.activeTab) ?? tabs[0];
 
@@ -82,7 +82,7 @@ const EmbedTabs = ({ album }: { album: Album }) => {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setState({ albumId: album.id, activeTab: tab.id })}
+            onClick={() => setState({ albumId: String(album.id), activeTab: tab.id })}
             className={`win95-tab px-3 py-1.5 text-sm cursor-pointer whitespace-nowrap ${
               tab.id === activeTab.id
                 ? "win95-tab-active font-bold"
