@@ -171,18 +171,14 @@ function App() {
           className="text-sm px-2 py-1 border-b-2 border-[var(--win95-gray-dark)]"
           style={{ background: "var(--win95-gray)" }}
         >
-          <span className="mr-4">File</span>
-          <span className="mr-4">Edit</span>
-          <span className="mr-4">View</span>
           <button
             type="button"
-            className={`mr-4 px-1 cursor-pointer ${showFavorites ? "win95-sunken" : ""}`}
+            className={`px-1 cursor-pointer ${showFavorites ? "win95-sunken" : ""}`}
             onClick={() => setShowFavorites((open) => !open)}
             aria-expanded={showFavorites}
           >
             Favorites ({favorites.length})
           </button>
-          <span>Help</span>
         </div>
 
         {/* contenu */}

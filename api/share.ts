@@ -15,7 +15,7 @@ type Release = {
   artists?: { name: string }[];
   genres?: string[];
   styles?: string[];
-  images?: { uri?: string }[];
+  images?: { uri?: string; width?: number; height?: number }[];
 };
 
 const escapeHtml = (text: string) =>
@@ -62,10 +62,24 @@ export default async function handler(request: Request): Promise<Response> {
     : "Spin a random record from Discogs and listen to it right away.";
   // l'image passe par notre proxy : les robots d'aperçu n'ont pas de souci de CORS,
   // mais i.discogs.com peut refuser les requêtes sans User-Agent "navigateur"
-  const cover = data?.images?.[0]?.uri;
+  const coverImage = data?.images?.[0];
+  const cover = coverImage?.uri;
   const image = cover
     ? `${origin}/api/image-proxy?url=${encodeURIComponent(cover)}`
     : `${origin}/og-image.png`;
+  // dimensions explicites : sans elles, WhatsApp/Facebook n'affichent parfois pas
+  // l'image au tout premier partage (le temps de la télécharger pour la mesurer)
+  const [imageWidth, imageHeight] =
+    cover && coverImage?.width && coverImage?.height
+      ? [coverImage.width, coverImage.height]
+      : cover
+        ? [0, 0]
+        : [1200, 630];
+  const imageSizeTags = imageWidth
+    ? `<meta property="og:image:width" content="${imageWidth}" />
+<meta property="og:image:height" content="${imageHeight}" />
+`
+    : "";
   // og:url = ce lien-ci : Facebook re-scrape l'og:url, qui doit donc garder ces balises
   const shareUrl = `${origin}/api/share?release=${release}`;
 
@@ -80,7 +94,8 @@ export default async function handler(request: Request): Promise<Response> {
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
 <meta property="og:image" content="${escapeHtml(image)}" />
-<meta property="og:url" content="${escapeHtml(shareUrl)}" />
+<meta property="og:image:alt" content="${escapeHtml(title)}" />
+${imageSizeTags}<meta property="og:url" content="${escapeHtml(shareUrl)}" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${escapeHtml(title)}" />
 <meta name="twitter:description" content="${escapeHtml(description)}" />
